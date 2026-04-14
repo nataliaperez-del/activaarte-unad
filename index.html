@@ -1,0 +1,2545 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#003B71">
+<meta name="description" content="ACTiva Arte — Bienestar emocional ACT · UNAD">
+<title>ACTiva Arte — UNAD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;0,900;1,400&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   RESET & TOKENS
+═══════════════════════════════════════════ */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+
+:root{
+  /* Identidad UNAD */
+  --azul:      #003B71;
+  --azul-m:    #005DA4;
+  --azul-c:    #0077C8;
+  --verde:     #5B9E3A;
+  --amarillo:  #F2A900;
+  --gris:      #58595B;
+  /* Sistema */
+  --salvia:    #8DAA91;
+  --terra:     #C9825A;
+  --crema:     #F5F0E8;
+  --lavanda:   #B4A7C5;
+  --aurora:    #E8C4A0;
+  --txt:       #1A1A2E;
+  --txt2:      #4A5568;
+  --fondo:     #F4F6F9;
+  --blanco:    #FFFFFF;
+  --borde:     #E2E8F0;
+  --sombra:    0 2px 12px rgba(0,59,113,.08);
+  --sombra-lg: 0 8px 32px rgba(0,59,113,.14);
+  --r:         14px;
+  --rs:        8px;
+  --rp:        999px;
+}
+
+body{
+  font-family:'Nunito',sans-serif;
+  background:var(--fondo);
+  color:var(--txt);
+  line-height:1.6;
+  min-height:100vh;
+}
+h1,h2,h3,h4{font-family:'Lora',serif;line-height:1.25;font-weight:600}
+img{max-width:100%;display:block}
+button,input,textarea,select{font-family:inherit}
+a{text-decoration:none;color:inherit}
+
+/* ═══════════════════════════════════════════
+   CONNECTIVITY BAR
+═══════════════════════════════════════════ */
+#conn-bar{
+  position:fixed;top:0;left:0;right:0;z-index:9999;
+  padding:9px 20px;font-size:13px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  transform:translateY(-100%);transition:transform .3s cubic-bezier(.34,1.56,.64,1);
+  pointer-events:none;
+}
+#conn-bar.show{transform:translateY(0);pointer-events:auto}
+#conn-bar.offline{background:#C0392B;color:#fff}
+#conn-bar.online{background:#1e8449;color:#fff}
+#conn-bar.syncing{background:var(--azul);color:#fff}
+.conn-dot{width:8px;height:8px;border-radius:50%;background:currentColor;display:inline-block;flex-shrink:0}
+.conn-btn{background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:var(--rp);padding:3px 12px;font-size:11px;cursor:pointer;font-weight:800}
+
+/* ═══════════════════════════════════════════
+   STUDENT LAYOUT
+═══════════════════════════════════════════ */
+#student-mode{display:none}
+
+/* HEADER */
+.stu-header{
+  background:var(--azul);
+  color:#fff;
+  position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 12px rgba(0,0,0,.18);
+}
+.stu-header-inner{
+  max-width:1200px;margin:0 auto;
+  padding:0 20px;
+  display:flex;align-items:center;gap:12px;height:60px;
+}
+.stu-logo{display:flex;align-items:center;gap:10px}
+.stu-logo-badge{
+  background:var(--amarillo);color:var(--azul);
+  font-weight:900;font-size:13px;border-radius:6px;
+  padding:3px 8px;letter-spacing:.3px;
+}
+.stu-logo-name{font-family:'Lora',serif;font-size:16px;font-weight:600;letter-spacing:.2px}
+.stu-header-actions{margin-left:auto;display:flex;align-items:center;gap:8px}
+.stu-pts{
+  background:var(--amarillo);color:var(--azul);
+  font-weight:900;font-size:12px;border-radius:var(--rp);
+  padding:4px 12px;position:relative;
+}
+#pending-badge{
+  position:absolute;top:-6px;right:-6px;
+  background:#e53e3e;color:#fff;border-radius:50%;
+  width:16px;height:16px;font-size:9px;font-weight:900;
+  display:none;align-items:center;justify-content:center;
+}
+#pending-badge.show{display:flex}
+.stu-role-btn{
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);
+  color:#fff;border-radius:var(--rp);padding:6px 14px;
+  font-size:12px;font-weight:700;cursor:pointer;
+  transition:background .2s;
+}
+.stu-role-btn:hover{background:rgba(255,255,255,.22)}
+
+/* APP CONTAINER */
+.stu-app{max-width:680px;margin:0 auto;padding:24px 16px 100px}
+
+/* SCREENS */
+.screen{display:none;animation:fadeUp .3s ease forwards}
+.screen.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+/* ═══════════════════════════════════════════
+   CARDS
+═══════════════════════════════════════════ */
+.card{
+  background:var(--blanco);border-radius:var(--r);
+  box-shadow:var(--sombra);padding:20px;margin-bottom:16px;
+  transition:box-shadow .2s;border:1px solid var(--borde);
+}
+.card:hover{box-shadow:var(--sombra-lg)}
+
+/* BANNER */
+.banner{
+  border-radius:var(--r) var(--r) 0 0;
+  height:180px;display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+}
+.banner::before{content:'';position:absolute;inset:0}
+.banner-content{position:relative;z-index:1;text-align:center;color:#fff;padding:0 20px}
+.banner-emoji{font-size:2.8rem;display:block;margin-bottom:8px}
+.banner-title{font-family:'Lora',serif;font-size:1.55rem;font-weight:600}
+.banner-sub{font-size:13px;opacity:.85;margin-top:3px}
+
+.banner-home::before{background:linear-gradient(135deg,var(--azul) 0%,var(--azul-c) 60%,var(--salvia) 100%)}
+.banner-checkin::before{background:linear-gradient(135deg,#1a1a3e,var(--azul) 55%,var(--lavanda))}
+.banner-module::before{background:linear-gradient(135deg,var(--verde),var(--salvia) 60%,var(--crema))}
+.banner-progress::before{background:linear-gradient(135deg,var(--terra),var(--amarillo) 60%,var(--aurora))}
+.banner-teacher::before{background:linear-gradient(135deg,#1a1a3e,#003B71 60%,#005DA4)}
+.banner::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 60%,rgba(242,169,0,.18) 0%,transparent 55%),radial-gradient(circle at 80% 20%,rgba(91,158,58,.2) 0%,transparent 45%)}
+
+/* FORM CARD */
+.form-card{
+  background:var(--blanco);
+  border-radius:0 0 var(--r) var(--r);
+  padding:24px;margin-bottom:16px;
+  box-shadow:var(--sombra);border:1px solid var(--borde);border-top:none;
+}
+.form-card-header{
+  background:var(--azul);border-top:8px solid var(--amarillo);
+  border-radius:var(--r) var(--r) 0 0;padding:22px 24px 18px;color:#fff;
+}
+.form-card-header h2{font-size:1.3rem;color:#fff}
+.form-card-header p{font-size:13px;opacity:.8;margin-top:4px}
+
+/* ═══════════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════════ */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  border:none;border-radius:var(--rp);
+  font-size:15px;font-weight:700;min-height:48px;
+  padding:10px 24px;cursor:pointer;width:100%;
+  transition:transform .12s,box-shadow .2s,filter .15s;
+}
+.btn:active{transform:scale(.97)}
+.btn:focus-visible{outline:3px solid var(--amarillo);outline-offset:2px}
+.btn-primary{background:var(--azul-c);color:#fff}
+.btn-primary:hover{filter:brightness(1.1)}
+.btn-success{background:var(--verde);color:#fff}
+.btn-success:hover{filter:brightness(1.1)}
+.btn-gold{background:var(--amarillo);color:var(--azul)}
+.btn-ghost{background:transparent;color:var(--txt2);border:1.5px solid var(--borde)}
+.btn-ghost:hover{border-color:var(--azul-c);color:var(--azul-c)}
+.btn-danger{background:#E53E3E;color:#fff}
+.btn-sm{min-height:38px;font-size:13px;padding:7px 18px}
+.btn-pair{display:flex;gap:10px}
+.btn-pair .btn{flex:1}
+
+/* ═══════════════════════════════════════════
+   FORMS
+═══════════════════════════════════════════ */
+.form-group{margin-bottom:20px}
+.form-label{display:block;font-weight:700;font-size:14px;margin-bottom:8px;color:var(--azul)}
+.form-label .req{color:#E53E3E;margin-left:3px}
+.form-label .opt{font-size:12px;color:var(--txt2);font-weight:400}
+.form-input{
+  width:100%;padding:12px 14px;
+  border:1.5px solid var(--borde);border-radius:var(--rs);
+  font-size:15px;background:var(--blanco);
+  transition:border-color .2s,box-shadow .2s;color:var(--txt);
+}
+.form-input:focus{outline:none;border-color:var(--azul-c);box-shadow:0 0 0 3px rgba(0,119,200,.12)}
+textarea.form-input{resize:vertical}
+textarea.short{min-height:70px}
+textarea.long{min-height:130px}
+textarea.xl{min-height:190px}
+.char-counter{text-align:right;font-size:11px;color:var(--txt2);margin-top:4px}
+.char-counter.warn{color:var(--terra)}
+.char-counter.ok{color:var(--verde)}
+.form-hint{font-size:12px;color:var(--txt2);margin-top:5px;font-style:italic}
+.range-wrap{display:flex;align-items:center;gap:12px}
+input[type=range]{flex:1;accent-color:var(--azul-c)}
+.range-val{min-width:36px;text-align:center;font-weight:700;background:var(--azul-c);color:#fff;border-radius:6px;padding:3px 8px;font-size:14px}
+
+/* ═══════════════════════════════════════════
+   ROLE SELECTION
+═══════════════════════════════════════════ */
+.role-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:12px;margin:16px 0;
+}
+.role-card{
+  border:2px solid var(--borde);border-radius:var(--r);
+  padding:20px 14px;text-align:center;cursor:pointer;
+  background:var(--blanco);
+  transition:transform .2s,border-color .2s,box-shadow .2s,background .2s;
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  min-height:140px;pointer-events:auto;
+}
+.role-card:hover{border-color:var(--azul-c);transform:translateY(-2px);box-shadow:var(--sombra-lg)}
+.role-card.selected{border-color:var(--azul);background:var(--azul);color:#fff}
+.role-card .r-icon{font-size:2.4rem}
+.role-card .r-name{font-weight:800;font-size:1rem}
+.role-card .r-desc{font-size:12px;opacity:.7}
+
+/* ═══════════════════════════════════════════
+   EMOTIONS
+═══════════════════════════════════════════ */
+.emotion-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}
+@media(max-width:400px){.emotion-grid{grid-template-columns:1fr 1fr}}
+.emotion-pill{
+  border:2px solid var(--borde);border-radius:var(--r);
+  padding:14px 8px;background:var(--blanco);cursor:pointer;
+  text-align:center;transition:all .2s;
+}
+.emotion-pill:hover{border-color:var(--azul-c)}
+.emotion-pill.selected{background:var(--azul);border-color:var(--azul);color:#fff;transform:scale(1.05)}
+.emotion-pill .em-icon{font-size:1.8rem;display:block;margin-bottom:4px}
+.emotion-pill .em-label{font-size:12px;font-weight:700;color:var(--txt2)}
+.emotion-pill.selected .em-label{color:#fff}
+.emotion-pill .em-count{font-size:10px;color:var(--txt2);margin-top:2px}
+.emotion-pill.selected .em-count{color:rgba(255,255,255,.7)}
+
+/* ═══════════════════════════════════════════
+   DASHBOARD
+═══════════════════════════════════════════ */
+.streak-bar{
+  background:linear-gradient(135deg,var(--azul),var(--azul-m));
+  color:#fff;border-radius:var(--r);padding:20px;
+  margin-bottom:16px;
+  display:flex;align-items:center;justify-content:space-between;
+  box-shadow:0 4px 16px rgba(0,59,113,.25);
+}
+.streak-label{font-size:11px;opacity:.7;text-transform:uppercase;letter-spacing:1px}
+.streak-num{font-size:2.2rem;font-weight:900;color:var(--amarillo);line-height:1}
+.progress-track{height:6px;background:rgba(255,255,255,.18);border-radius:var(--rp);margin-top:10px;width:140px;overflow:hidden}
+.progress-fill{height:100%;background:var(--amarillo);border-radius:var(--rp);transition:width .5s ease}
+
+.ex-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+@media(max-width:420px){.ex-grid{grid-template-columns:1fr}}
+.card-ex{
+  cursor:pointer;border:2px solid var(--borde);border-radius:var(--r);
+  padding:16px;background:var(--blanco);
+  transition:all .2s;display:flex;flex-direction:column;gap:6px;
+  box-shadow:var(--sombra);
+}
+.card-ex:hover{border-color:var(--azul-c);box-shadow:var(--sombra-lg);transform:translateY(-1px)}
+.card-ex.done{border-color:var(--verde)}
+.card-ex:active{transform:scale(.98)}
+.ex-icon{font-size:1.8rem}
+.ex-title{font-family:'Lora',serif;font-size:.95rem;font-weight:600}
+.ex-sub{font-size:11px;color:var(--txt2)}
+.ex-badge{font-size:11px;padding:2px 8px;border-radius:var(--rp);font-weight:700;display:inline-block;width:fit-content}
+.badge-done{background:rgba(91,158,58,.12);color:var(--verde);border:1px solid rgba(91,158,58,.3)}
+.badge-pend{background:var(--fondo);color:var(--gris)}
+.card-ex{opacity:0;animation:fadeUp .4s ease forwards}
+.card-ex:nth-child(1){animation-delay:.04s}.card-ex:nth-child(2){animation-delay:.09s}
+.card-ex:nth-child(3){animation-delay:.14s}.card-ex:nth-child(4){animation-delay:.19s}
+.card-ex:nth-child(5){animation-delay:.24s}.card-ex:nth-child(6){animation-delay:.29s}
+
+.recommend-box{
+  background:linear-gradient(135deg,var(--azul),var(--azul-m));
+  color:#fff;border-radius:var(--r);padding:16px 20px;margin-bottom:16px;
+}
+.recommend-box small{font-size:11px;opacity:.7;text-transform:uppercase;letter-spacing:1px}
+.recommend-box p{font-size:14px;margin-top:4px;font-weight:600}
+
+/* ═══════════════════════════════════════════
+   PROGRESS SCREEN
+═══════════════════════════════════════════ */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.stat-chip{background:var(--blanco);border:1px solid var(--borde);border-radius:var(--r);padding:16px;text-align:center}
+.stat-val{font-size:1.8rem;font-weight:900;color:var(--azul);display:block}
+.stat-lbl{font-size:11px;color:var(--txt2);margin-top:2px}
+.cal-week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin:14px 0}
+.cal-day{border-radius:50%;border:2px solid var(--borde);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--txt2);aspect-ratio:1}
+.cal-day.active{background:var(--verde);border-color:var(--verde);color:#fff;box-shadow:0 3px 10px rgba(91,158,58,.3)}
+.em-hist-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;margin-top:12px}
+.em-hist-pill{background:var(--fondo);border-radius:var(--rs);padding:10px 8px;text-align:center;border:1px solid var(--borde)}
+.em-hist-pill .ehi{font-size:1.5rem;display:block}
+.em-hist-pill .ehn{font-weight:700;color:var(--azul);font-size:11px;margin-top:2px}
+.em-hist-pill .ehc{font-size:14px;font-weight:900;color:var(--azul-c)}
+#emotion-chart{width:100%;height:160px;border-radius:var(--rs);background:var(--blanco);display:block}
+
+/* ═══════════════════════════════════════════
+   LOGROS
+═══════════════════════════════════════════ */
+.logro-item{display:flex;align-items:center;gap:14px;padding:14px;border-radius:var(--rs);border:1.5px solid var(--borde);background:var(--blanco);margin-bottom:10px;transition:all .2s}
+.logro-item.unlocked{background:linear-gradient(135deg,rgba(91,158,58,.06),rgba(242,169,0,.06));border-color:var(--verde)}
+.logro-item.locked{opacity:.55}
+.logro-icon{font-size:2rem;min-width:42px;text-align:center}
+.logro-title{font-weight:700;font-size:14px}
+.logro-desc{font-size:12px;color:var(--txt2)}
+
+/* ═══════════════════════════════════════════
+   TEACHER LOCAL PANEL
+═══════════════════════════════════════════ */
+.data-table{width:100%;border-collapse:collapse;font-size:14px}
+.data-table th{background:var(--azul);color:#fff;padding:10px 12px;text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+.data-table td{border-bottom:1px solid var(--borde);padding:10px 12px}
+.data-table tr:last-child td{border:none}
+.data-table tr:hover td{background:var(--fondo)}
+.table-wrap{overflow-x:auto;border-radius:var(--rs);border:1px solid var(--borde);box-shadow:var(--sombra)}
+.gal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.gal-item{border-radius:var(--rs);overflow:hidden;box-shadow:var(--sombra);cursor:pointer;transition:transform .2s;border:1px solid var(--borde)}
+.gal-item:hover{transform:scale(1.03)}
+.gal-item img{width:100%;height:110px;object-fit:cover}
+.gal-info{padding:8px;font-size:11px;background:var(--blanco)}
+.gal-name{font-weight:700;color:var(--azul);margin-bottom:2px}
+
+/* ═══════════════════════════════════════════
+   UPLOAD AREA
+═══════════════════════════════════════════ */
+.upload-area{border:2px dashed var(--azul-c);border-radius:var(--r);padding:22px;text-align:center;cursor:pointer;transition:background .2s;background:rgba(0,119,200,.03)}
+.upload-area:hover{background:rgba(0,119,200,.07)}
+.upload-area input[type=file]{display:none}
+.upload-preview{width:100%;border-radius:var(--rs);margin-top:12px;display:none;max-height:200px;object-fit:cover}
+
+/* ═══════════════════════════════════════════
+   SYNC BLOCK (STUDENT)
+═══════════════════════════════════════════ */
+.sync-block{
+  background:linear-gradient(135deg,#0d1f3c,var(--azul) 70%,var(--azul-m));
+  border-radius:var(--r);padding:22px;margin-bottom:16px;
+  border:1px solid rgba(255,255,255,.08);
+}
+.sync-block-head{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.sync-block-head strong{color:#fff;font-size:15px}
+#sync-chip{margin-left:auto;border-radius:var(--rp);padding:4px 12px;font-size:11px;font-weight:800;background:rgba(255,255,255,.12);color:rgba(255,255,255,.75)}
+.sync-desc{font-size:12px;color:rgba(255,255,255,.55);margin-bottom:16px;line-height:1.5}
+.sbtn{width:100%;padding:13px 18px;margin-bottom:10px;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:transform .12s,filter .15s}
+.sbtn:active{transform:scale(.97)}
+.sbtn:last-child{margin-bottom:0}
+.sbtn-green{background:linear-gradient(135deg,#1e8449,#27ae60);color:#fff;box-shadow:0 4px 14px rgba(39,174,96,.35)}
+.sbtn-green:hover{filter:brightness(1.08)}
+.sbtn-mid{background:rgba(255,255,255,.1);color:#fff}
+.sbtn-mid:hover{background:rgba(255,255,255,.17)}
+.sbtn-sm{background:rgba(255,255,255,.05);color:rgba(255,255,255,.6);font-size:13px;padding:11px}
+.sbtn-sm:hover{background:rgba(255,255,255,.1)}
+.sbtn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.sync-url-row{margin-top:12px;font-size:11px;color:rgba(255,255,255,.35);text-align:center}
+.sync-url-row button{background:none;border:none;color:#79c0ff;cursor:pointer;font-size:11px;font-weight:700;text-decoration:underline}
+
+/* ═══════════════════════════════════════════
+   MISC
+═══════════════════════════════════════════ */
+.divider{height:1px;background:var(--borde);margin:20px 0}
+.section-title{font-size:14px;font-weight:700;color:var(--azul);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.instr-box{background:var(--crema);border-left:4px solid var(--salvia);border-radius:0 var(--rs) var(--rs) 0;padding:14px 16px;margin-bottom:14px;font-size:14px}
+.grounding-step{border-left:4px solid var(--azul-c);padding:10px 14px;margin-bottom:10px;background:var(--blanco);border-radius:0 var(--rs) var(--rs) 0;border:1px solid var(--borde);border-left-width:4px}
+.grounding-step .step-label{font-weight:700;font-size:13px;color:var(--azul);margin-bottom:4px}
+.alert-support{background:linear-gradient(135deg,#FFF8E1,#FFEAA7);border:2px solid var(--amarillo);border-radius:var(--r);padding:14px 16px;margin-bottom:14px;display:none}
+.alert-support.show{display:block}
+.download-hint{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--verde);font-weight:700;background:rgba(91,158,58,.1);border-radius:var(--rp);padding:4px 12px;margin-top:8px}
+.btn-stop{display:block;text-align:center;font-size:13px;color:var(--terra);background:transparent;border:none;cursor:pointer;padding:10px;width:100%;font-weight:700}
+@keyframes celebrate{0%{transform:scale(1)}40%{transform:scale(1.08);filter:brightness(1.2)}100%{transform:scale(1)}}
+.celebrating{animation:celebrate .6s ease forwards}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:9999;padding:16px}
+.modal-overlay.show{display:flex}
+.modal-box{background:var(--blanco);border-radius:var(--r);padding:28px;width:min(100%,440px);box-shadow:0 24px 64px rgba(0,0,0,.25);animation:fadeUp .25s ease;position:relative}
+.modal-title{font-family:'Lora',serif;font-size:1.15rem;margin-bottom:10px;color:var(--azul)}
+.modal-img{width:100%;border-radius:var(--rs);margin:12px 0;max-height:300px;object-fit:contain}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--azul);color:#fff;border-radius:var(--rp);padding:11px 22px;font-size:14px;font-weight:700;z-index:99999;animation:toastIn .3s ease,toastOut .4s 2.6s forwards;white-space:nowrap;box-shadow:0 4px 20px rgba(0,59,113,.4)}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(12px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+@keyframes toastOut{to{opacity:0;transform:translateX(-50%) translateY(8px)}}
+
+/* ═══════════════════════════════════════════
+   SERVER MODE — PANEL DOCENTE ONLINE
+═══════════════════════════════════════════ */
+#server-mode{display:none;min-height:100vh;background:#0d1117;color:#c9d1d9;font-family:'Nunito',sans-serif}
+
+/* Header */
+.srv-hdr{
+  background:#161b22;border-bottom:1px solid #21262d;
+  padding:0 28px;height:64px;
+  display:flex;align-items:center;gap:16px;
+  position:sticky;top:0;z-index:100;
+}
+.srv-hdr-logo{display:flex;align-items:center;gap:10px}
+.srv-hdr-badge{background:var(--amarillo);color:var(--azul);font-weight:900;font-size:12px;border-radius:6px;padding:3px 8px}
+.srv-hdr-name{font-family:'Lora',serif;font-size:16px;font-weight:600;color:#e6edf3}
+.srv-hdr-tag{font-size:12px;color:#8b949e;font-weight:400}
+.srv-hdr-actions{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.sb{background:#238636;color:#fff;border:none;border-radius:6px;padding:7px 16px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:filter .15s}
+.sb:hover{filter:brightness(1.12)}
+.sb.blue{background:#1f6feb}
+.sb.g{background:transparent;color:#58a6ff;border:1px solid #30363d}
+.sb.g:hover{background:rgba(88,166,255,.08)}
+.sb.del{background:#b91c1c}
+
+/* Main layout */
+.srv-main{max-width:1200px;margin:0 auto;padding:28px 24px}
+
+/* PIN screen */
+.srv-pin-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0d1117;padding:20px}
+.srv-pin-box{background:#161b22;border:1px solid #21262d;border-radius:16px;padding:48px 40px;width:min(100%,400px);text-align:center}
+.srv-pin-box h2{font-family:'Lora',serif;font-size:1.5rem;color:#e6edf3;margin-bottom:8px}
+.srv-pin-box p{font-size:13px;color:#8b949e;margin-bottom:28px}
+.srv-pin-inp{
+  width:100%;background:rgba(255,255,255,.05);border:1.5px solid #30363d;border-radius:8px;
+  padding:14px 16px;font-size:18px;color:#e6edf3;text-align:center;letter-spacing:6px;
+  margin-bottom:14px;font-family:inherit;transition:border-color .2s;
+}
+.srv-pin-inp:focus{outline:none;border-color:#58a6ff}
+.srv-pin-btn{width:100%;background:#238636;color:#fff;border:none;border-radius:8px;padding:14px;font-size:16px;font-weight:800;cursor:pointer;transition:filter .15s}
+.srv-pin-btn:hover{filter:brightness(1.1)}
+
+/* Import zone — THE KEY ELEMENT */
+.srv-import-zone{
+  background:linear-gradient(135deg,#0d2137 0%,#003B71 55%,#005DA4 100%);
+  border-radius:16px;padding:32px;margin-bottom:28px;
+  border:1px solid rgba(255,255,255,.08);
+}
+.srv-import-zone h2{font-family:'Lora',serif;color:#fff;font-size:1.35rem;margin-bottom:6px}
+.srv-import-zone p{font-size:13px;color:rgba(255,255,255,.5);margin-bottom:22px}
+.srv-import-btns{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+.srv-import-btn-main{
+  flex:1;min-width:200px;
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  padding:18px 24px;
+  background:linear-gradient(135deg,var(--amarillo),#e09500);color:var(--azul);
+  border-radius:12px;font-size:16px;font-weight:900;cursor:pointer;
+  box-shadow:0 6px 20px rgba(242,169,0,.4);
+  transition:transform .15s,box-shadow .2s;border:none;
+}
+.srv-import-btn-main:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(242,169,0,.5)}
+.srv-import-btn-main:active{transform:scale(.97)}
+.srv-drop-zone{
+  flex:1;min-width:160px;
+  border:2px dashed rgba(255,255,255,.2);border-radius:12px;
+  padding:18px;text-align:center;cursor:pointer;
+  background:rgba(255,255,255,.03);
+  transition:border-color .2s,background .2s;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+}
+.srv-drop-zone:hover,.srv-drop-zone.over{border-color:var(--amarillo);background:rgba(242,169,0,.06)}
+.srv-drop-zone span{color:rgba(255,255,255,.45);font-size:13px}
+#srv-load-st{margin-top:14px}
+.srv-json-row{display:flex;align-items:center;gap:10px;margin-top:12px;font-size:12px;color:rgba(255,255,255,.35)}
+#srv-jc{color:var(--amarillo);font-weight:900;font-size:15px}
+.srv-add-more{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#fff;border-radius:8px;padding:5px 14px;font-size:12px;cursor:pointer;font-weight:700}
+
+/* Stats */
+.srv-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-bottom:24px}
+.srv-stat{background:#161b22;border:1px solid #21262d;border-radius:12px;padding:18px;text-align:center}
+.srv-stat .sv{font-size:2rem;font-weight:900;color:#58a6ff;display:block;line-height:1}
+.srv-stat .sl{font-size:11px;color:#8b949e;margin-top:4px;text-transform:uppercase;letter-spacing:.5px}
+
+/* Sections */
+.srv-sec{background:#161b22;border:1px solid #21262d;border-radius:12px;padding:22px;margin-bottom:20px}
+.srv-sec h3{font-size:15px;font-weight:700;color:#e6edf3;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.srv-sec h3 .cnt{font-size:12px;color:#8b949e;font-weight:400;margin-left:4px}
+
+/* Table */
+.srv-tbl-wrap{overflow-x:auto;border-radius:8px;border:1px solid #21262d}
+.srv-tbl{width:100%;border-collapse:collapse;font-size:13px}
+.srv-tbl th{background:rgba(88,166,255,.08);color:#58a6ff;padding:11px 14px;text-align:left;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap}
+.srv-tbl td{padding:11px 14px;border-bottom:1px solid #21262d;color:#c9d1d9;vertical-align:middle}
+.srv-tbl tr:last-child td{border:none}
+.srv-tbl tr:hover td{background:rgba(255,255,255,.02)}
+
+/* Alerts */
+.srv-alert{border-radius:8px;padding:12px 16px;margin-bottom:10px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px}
+.srv-alert.ok{background:rgba(35,134,54,.15);color:#56d364;border:1px solid rgba(35,134,54,.3)}
+.srv-alert.err{background:rgba(248,81,73,.15);color:#ff7b72;border:1px solid rgba(248,81,73,.3)}
+.srv-alert.warn{background:rgba(210,153,34,.15);color:#e3b341;border:1px solid rgba(210,153,34,.3)}
+.srv-alert.info{background:rgba(88,166,255,.1);color:#58a6ff;border:1px solid rgba(88,166,255,.2)}
+
+/* Gallery */
+.srv-gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+.srv-gi{border-radius:10px;overflow:hidden;border:1px solid #21262d;cursor:pointer;transition:transform .2s}
+.srv-gi:hover{transform:scale(1.03)}
+.srv-gi img{width:100%;height:120px;object-fit:cover}
+.srv-gi .gi{padding:10px;background:#161b22}
+.srv-gi .gin{font-weight:700;color:#e6edf3;font-size:12px}
+.srv-gi .gis{font-size:11px;color:#8b949e;margin-top:2px}
+
+/* emotion history (dark) */
+.srv-em-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:10px}
+.srv-em-pill{background:rgba(255,255,255,.04);border:1px solid #21262d;border-radius:var(--rs);padding:12px 8px;text-align:center}
+.srv-em-pill .epi{font-size:1.6rem;display:block}
+.srv-em-pill .epn{font-weight:700;color:#8b949e;font-size:11px;margin-top:3px}
+.srv-em-pill .epc{font-size:14px;font-weight:900;color:#58a6ff}
+
+/* Reflexiones */
+.srv-ref-item{padding:16px;background:rgba(255,255,255,.02);border:1px solid #21262d;border-radius:10px;margin-bottom:12px}
+.srv-ref-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.srv-ref-name{font-weight:700;color:#e6edf3;font-size:14px}
+.srv-ref-date{font-size:11px;color:#8b949e}
+.srv-ref-title{font-size:14px;font-weight:700;color:#58a6ff;margin-bottom:4px}
+.srv-ref-text{font-size:13px;color:#8b949e;font-style:italic;line-height:1.5}
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════ */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .card-ex{opacity:1!important}
+}
+@media(max-width:600px){
+  .stu-app{padding:16px 12px 90px}
+  .srv-main{padding:16px 14px}
+  .srv-hdr{padding:0 16px}
+  .srv-hdr-actions{gap:6px}
+  .sb{padding:6px 10px;font-size:12px}
+  .srv-import-btns{flex-direction:column}
+  .srv-import-btn-main{padding:16px}
+  .banner{height:150px}
+  .banner-title{font-size:1.3rem}
+  .streak-num{font-size:1.8rem}
+  .srv-stats{grid-template-columns:repeat(3,1fr)}
+}
+@media(min-width:768px){
+  .stu-app{padding:28px 24px 100px}
+  .ex-grid{grid-template-columns:repeat(3,1fr)}
+  .stats-grid{grid-template-columns:repeat(4,1fr)}
+}
+@media(min-width:1024px){
+  .srv-import-btns{flex-wrap:nowrap}
+}
+</style>
+</head>
+<body>
+
+<!-- ═════════════ CONNECTIVITY BAR ═════════════ -->
+<div id="conn-bar" role="status" aria-live="polite">
+  <span class="conn-dot"></span>
+  <span id="conn-msg">Verificando conexión…</span>
+  <button class="conn-btn" onclick="doManualSync()">⬆ Sync</button>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MODO SERVIDOR (?mode=server)
+     PIN + Panel docente completo
+═══════════════════════════════════════════ -->
+<div id="server-mode">
+
+  <!-- PIN -->
+  <div id="srv-pin-screen" class="srv-pin-screen">
+    <div class="srv-pin-box">
+      <div style="font-size:3.5rem;margin-bottom:18px">🔐</div>
+      <h2>Panel Docente</h2>
+      <p>ACTiva Arte · UNAD<br>Ingresa el PIN de acceso para continuar</p>
+      <input type="password" id="srv-pin" class="srv-pin-inp" placeholder="PIN" maxlength="20" autofocus>
+      <div id="srv-pin-err" style="color:#ff7b72;font-size:13px;margin-bottom:12px;display:none">⚠️ PIN incorrecto</div>
+      <button onclick="checkSrvPin()" class="srv-pin-btn">Acceder al panel →</button>
+      <div style="margin-top:16px;font-size:11px;color:#8b949e;line-height:1.9">
+        <div>Docente: <code style="color:#e3b341;background:rgba(255,255,255,.05);padding:2px 6px;border-radius:4px">UNADDOCENTE2026</code></div>
+        <div>Admin: <code style="color:#58a6ff;background:rgba(255,255,255,.05);padding:2px 6px;border-radius:4px">UNADADMIN2026</code></div>
+        <div style="margin-top:6px;color:#6e7681">Ambos acceden al panel de importación</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL PRINCIPAL -->
+  <div id="srv-panel" style="display:none">
+
+    <header class="srv-hdr">
+      <div class="srv-hdr-logo">
+        <span class="srv-hdr-badge">UNAD</span>
+        <span class="srv-hdr-name">ACTiva Arte</span>
+        <span class="srv-hdr-tag" id="srv-role-tag">— Docente</span>
+      </div>
+      <div class="srv-hdr-actions">
+        <button class="sb blue" id="s-exp-html">📄 Reporte HTML</button>
+        <button class="sb g" id="s-exp-csv">📊 CSV</button>
+        <button class="sb g" id="s-exp-json">⬇ JSON</button>
+        <button class="sb del" id="s-clear">🗑 Limpiar</button>
+      </div>
+    </header>
+
+    <div class="srv-main">
+
+      <!-- ═══ IMPORTAR / SINCRONIZAR JSONs ═══ -->
+      <div class="srv-import-zone">
+        <h2>📥 Importar datos de estudiantes</h2>
+        <p>Carga los archivos <strong style="color:rgba(255,255,255,.8)">.json</strong> que los estudiantes exportaron desde la app. Puedes cargar varios a la vez.</p>
+        <div class="srv-import-btns">
+          <!-- BOTÓN PRINCIPAL -->
+          <label for="srv-file-in" class="srv-import-btn-main">
+            <span style="font-size:2rem">📂</span>
+            <span>Importar JSON de estudiantes</span>
+          </label>
+          <input type="file" id="srv-file-in" accept=".json,application/json" multiple style="display:none">
+          <!-- DROP ZONE -->
+          <div class="srv-drop-zone" id="srv-dz">
+            <span style="font-size:1.8rem">🗂️</span>
+            <span>o arrastra archivos .json aquí</span>
+          </div>
+        </div>
+        <div id="srv-load-st"></div>
+        <div class="srv-json-row">
+          <span>📦 JSONs procesados: <strong id="srv-jc">0</strong></span>
+          <button class="srv-add-more" onclick="document.getElementById('srv-file-in').click()">+ Añadir más</button>
+        </div>
+      </div>
+
+      <!-- STATS -->
+      <div class="srv-stats">
+        <div class="srv-stat"><span class="sv" id="sv-u">0</span><span class="sl">Estudiantes</span></div>
+        <div class="srv-stat"><span class="sv" id="sv-s">0</span><span class="sl">Sesiones</span></div>
+        <div class="srv-stat"><span class="sv" id="sv-e">0</span><span class="sl">Ejercicios</span></div>
+        <div class="srv-stat"><span class="sv" id="sv-r">0</span><span class="sl">Reflexiones</span></div>
+        <div class="srv-stat"><span class="sv" id="sv-i">0</span><span class="sl">Imágenes</span></div>
+        <div class="srv-stat"><span class="sv" id="sv-j">0</span><span class="sl">JSONs</span></div>
+      </div>
+
+      <!-- TABLA ESTUDIANTES -->
+      <div class="srv-sec">
+        <h3>👥 Estudiantes compilados <span class="cnt" id="srv-sc"></span></h3>
+        <div class="srv-tbl-wrap">
+          <table class="srv-tbl">
+            <thead><tr>
+              <th>Nombre</th><th>Sesiones</th><th>Ejercicios</th>
+              <th>Reflexiones</th><th>Imágenes</th><th>Puntos</th><th>Última sesión</th>
+            </tr></thead>
+            <tbody id="srv-tbody">
+              <tr><td colspan="7" style="text-align:center;color:#8b949e;padding:32px 16px">
+                <div style="font-size:2rem;margin-bottom:8px">📂</div>
+                Importa un archivo JSON para ver los datos de los estudiantes
+              </td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- EMOCIONES -->
+      <div class="srv-sec">
+        <h3>🧠 Emociones del grupo <span style="font-size:12px;color:#8b949e;font-weight:400">— últimos 30 días</span></h3>
+        <div class="srv-em-grid" id="srv-em"></div>
+      </div>
+
+      <!-- REFLEXIONES -->
+      <div class="srv-sec">
+        <h3>✍️ Reflexiones <span class="cnt" id="srv-rc"></span></h3>
+        <div id="srv-refs"><p style="color:#8b949e;font-size:13px">Sin reflexiones registradas aún.</p></div>
+      </div>
+
+      <!-- GALERÍA -->
+      <div class="srv-sec">
+        <h3>🖼️ Banco de imágenes <span class="cnt" id="srv-ic"></span></h3>
+        <div class="srv-gal" id="srv-gal"><p style="color:#8b949e;font-size:13px">Sin imágenes registradas aún.</p></div>
+      </div>
+
+    </div><!-- /srv-main -->
+  </div><!-- /srv-panel -->
+</div><!-- /server-mode -->
+
+<!-- ═══════════════════════════════════════════
+     MODO ESTUDIANTE (default)
+═══════════════════════════════════════════ -->
+<div id="student-mode">
+
+  <header class="stu-header" role="banner">
+    <div class="stu-header-inner">
+      <div class="stu-logo">
+        <span class="stu-logo-badge">UNAD</span>
+        <span class="stu-logo-name">ACTiva Arte</span>
+      </div>
+      <div class="stu-header-actions">
+        <button class="stu-role-btn" id="btn-change-role">↩ Cambiar rol</button>
+        <div style="position:relative">
+          <span class="stu-pts" id="header-points">0 pts</span>
+          <span id="pending-badge">0</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="stu-app" role="main">
+
+    <!-- PANTALLA 0: ROL -->
+    <div class="screen active" id="screen-mode">
+      <div class="banner banner-home" style="border-radius:var(--r) var(--r) 0 0;height:200px">
+        <div class="banner-content">
+          <span class="banner-emoji">🎨</span>
+          <div class="banner-title">ACTiva Arte</div>
+          <div class="banner-sub">Terapia ACT · Arte · Tecnología · UNAD</div>
+        </div>
+      </div>
+      <div class="form-card" style="border-radius:0 0 var(--r) var(--r)">
+        <h2 style="font-size:1.3rem;color:var(--azul);margin-bottom:6px">¿Quién eres hoy?</h2>
+        <p style="font-size:13px;color:var(--txt2);margin-bottom:4px">Selecciona tu rol para continuar.</p>
+        <div class="role-grid" id="role-grid">
+          <div class="role-card" data-role="estudiante">
+            <span class="r-icon">👤</span>
+            <span class="r-name">Estudiante</span>
+            <span class="r-desc">Espacio de bienestar</span>
+          </div>
+          <div class="role-card" data-role="profesor">
+            <span class="r-icon">👩‍🏫</span>
+            <span class="r-name">Docente</span>
+            <span class="r-desc">Panel de seguimiento</span>
+          </div>
+          <div class="role-card" data-role="administrador">
+            <span class="r-icon">🛠️</span>
+            <span class="r-name">Admin</span>
+            <span class="r-desc">Gestión del sistema</span>
+          </div>
+        </div>
+        <button class="btn btn-primary" id="btn-continue-role" disabled style="margin-top:8px">
+          Continuar →
+        </button>
+        <p style="text-align:center;font-size:12px;color:var(--txt2);margin-top:14px">
+          🔒 Tus datos se guardan solo en este dispositivo
+        </p>
+      </div>
+    </div>
+
+    <!-- PANTALLA 1: CHECKIN -->
+    <div class="screen" id="screen-checkin">
+      <div class="banner banner-checkin" style="border-radius:var(--r) var(--r) 0 0">
+        <div class="banner-content">
+          <span class="banner-emoji">💭</span>
+          <div class="banner-title" id="checkin-greeting">Hola 👋</div>
+          <div class="banner-sub">Check-in emocional de hoy</div>
+        </div>
+      </div>
+      <div class="form-card" style="border-radius:0 0 var(--r) var(--r)">
+        <label class="form-label">¿Cómo te sientes ahora mismo? <span class="req">*</span></label>
+        <p style="font-size:12px;color:var(--txt2);margin-bottom:14px;font-style:italic">Todas las emociones son válidas. No hay respuesta incorrecta.</p>
+        <div class="emotion-grid" id="emotion-grid" role="group" aria-label="Selector de emoción"></div>
+      </div>
+      <div class="card" id="recommendation" style="display:none;border-left:4px solid var(--verde)">
+        <small style="font-size:11px;color:var(--txt2);text-transform:uppercase;letter-spacing:1px">💡 Te recomendamos hoy</small>
+        <p id="recommend-text" style="font-weight:700;margin-top:4px;color:var(--azul)"></p>
+      </div>
+      <div id="alert-support" class="alert-support" role="alert">
+        <strong>💛 Te noto con carga esta semana.</strong>
+        <p style="font-size:13px;margin-top:4px">Si lo necesitas, habla con tu docente. Estás acompañado/a.</p>
+      </div>
+      <button class="btn btn-primary" id="btn-validate" disabled>Entrar a mi espacio →</button>
+    </div>
+
+    <!-- PANTALLA 2: DASHBOARD -->
+    <div class="screen" id="screen-dashboard">
+      <div class="streak-bar">
+        <div>
+          <div class="streak-label">Semana <span id="week-number">1</span></div>
+          <div style="display:flex;align-items:baseline;gap:8px;margin-top:2px">
+            <span class="streak-num" id="streak-num">0</span>
+            <span style="font-size:14px;opacity:.8">días seguidos 🔥</span>
+          </div>
+          <div class="progress-track"><div class="progress-fill" id="progress-inner" style="width:0%"></div></div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:2rem;font-weight:900;color:var(--amarillo)" id="dash-points">0</div>
+          <div style="font-size:11px;opacity:.7">puntos</div>
+        </div>
+      </div>
+      <div class="recommend-box" id="today-recommend-box" style="display:none">
+        <small>Hoy te recomendamos</small>
+        <p id="today-recommend">—</p>
+      </div>
+      <div class="ex-grid" id="exercise-cards"></div>
+      <div class="divider"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+        <button class="btn btn-ghost btn-sm" id="show-progress">📅 Mi Progreso</button>
+        <button class="btn btn-ghost btn-sm" id="show-achievements">🏆 Logros</button>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="show-module" style="margin-bottom:10px">📝 Módulo de Reflexión</button>
+      <button class="btn btn-ghost btn-sm" id="btn-logout" style="opacity:.6;margin-bottom:16px">↩ Cambiar usuario</button>
+
+      <!-- ═══ SYNC BLOCK — SIEMPRE VISIBLE ═══ -->
+      <div class="sync-block">
+        <div class="sync-block-head">
+          <span style="font-size:1.3rem">📡</span>
+          <strong>Mis datos</strong>
+          <span id="sync-chip">⬤ …</span>
+        </div>
+        <p class="sync-desc" id="sync-desc">Exporta o sincroniza tus datos con el servidor del docente.</p>
+
+        <!-- SINCRONIZAR (solo si hay servidor + conexión) -->
+        <button id="btn-sync" class="sbtn sbtn-green" onclick="doManualSync()" style="display:none">
+          <span>☁️</span><span id="lbl-sync">Sincronizar mis datos</span>
+        </button>
+
+        <!-- EXPORTAR JSON — siempre visible -->
+        <button class="sbtn sbtn-mid" onclick="exportMyJson()">
+          <span>📤</span> Exportar mis datos (.json) para el docente
+        </button>
+
+        <!-- DESCARGAR APP — siempre visible -->
+        <button class="sbtn sbtn-sm" onclick="downloadApp()">
+          <span>💾</span> Descargar app para usar sin internet
+        </button>
+
+        <div class="sync-url-row">
+          <span id="srv-url-lbl">Sin servidor configurado</span>
+          &nbsp;·&nbsp;
+          <button onclick="changeServerUrl()">Configurar URL</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANTALLA 3: EJERCICIO (se construye dinámicamente) -->
+    <div class="screen" id="screen-exercise"></div>
+
+    <!-- PANTALLA 4: PROGRESO -->
+    <div class="screen" id="screen-progress">
+      <div class="banner banner-progress" style="border-radius:var(--r) var(--r) 0 0">
+        <div class="banner-content"><span class="banner-emoji">📊</span><div class="banner-title">Mi Progreso</div><div class="banner-sub">Tu camino de bienestar</div></div>
+      </div>
+      <div class="form-card" style="border-radius:0 0 var(--r) var(--r)">
+        <button class="btn btn-ghost btn-sm" style="width:auto;padding:8px 16px;margin-bottom:18px" onclick="showScreen('screen-dashboard')">← Volver</button>
+        <div class="stats-grid">
+          <div class="stat-chip"><span class="stat-val" id="days-active">0</span><span class="stat-lbl">Días activos</span></div>
+          <div class="stat-chip"><span class="stat-val" id="best-streak">0</span><span class="stat-lbl">Racha máx.</span></div>
+          <div class="stat-chip"><span class="stat-val" id="images-count">0</span><span class="stat-lbl">Fotos subidas</span></div>
+          <div class="stat-chip"><span class="stat-val" id="sessions-count">0</span><span class="stat-lbl">Sesiones</span></div>
+        </div>
+        <div class="card"><h3 class="section-title">📊 Emoción esta semana</h3><canvas id="emotion-chart"></canvas></div>
+        <div class="card"><h3 class="section-title">🧠 Mis emociones este mes</h3><div class="em-hist-grid" id="emotion-history-grid"></div><button class="btn btn-ghost btn-sm" id="download-emotion-report" style="margin-top:14px">⬇️ Descargar reporte emocional</button></div>
+        <div class="card"><h3 class="section-title">📅 Última semana</h3><div class="cal-week" id="calendar-grid" role="list"></div></div>
+        <div class="card"><h3 class="section-title">🎯 Más usados</h3><p id="favorite-exercise" style="font-weight:700;color:var(--azul)">—</p><p style="font-size:12px;margin-top:4px;color:var(--txt2)">Emoción más frecuente: <strong id="top-emotion">—</strong></p></div>
+      </div>
+    </div>
+
+    <!-- PANTALLA 5: LOGROS -->
+    <div class="screen" id="screen-achievements">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+        <button class="btn btn-ghost btn-sm" style="width:auto;padding:8px 16px" onclick="showScreen('screen-dashboard')">← Volver</button>
+        <h2 style="font-size:1.3rem;color:var(--azul)">Mis Logros</h2>
+      </div>
+      <div id="achievements-list"></div>
+    </div>
+
+    <!-- PANTALLA 6: MÓDULO REFLEXIÓN -->
+    <div class="screen" id="screen-module">
+      <div class="banner banner-module" style="border-radius:var(--r) var(--r) 0 0">
+        <div class="banner-content"><span class="banner-emoji">✍️</span><div class="banner-title">Módulo de Reflexión</div><div class="banner-sub">Tu espacio de expresión personal</div></div>
+      </div>
+      <div class="form-card" style="border-radius:0 0 var(--r) var(--r)">
+        <button class="btn btn-ghost btn-sm" style="width:auto;padding:8px 16px;margin-bottom:18px" onclick="showScreen('screen-dashboard')">← Volver</button>
+        <div class="form-group"><label class="form-label" for="mod-titulo">Título de tu reflexión <span class="req">*</span></label><input type="text" id="mod-titulo" class="form-input" placeholder="Un título breve…" maxlength="80"><div class="char-counter" id="cnt-titulo">0 / 80</div></div>
+        <div class="form-group"><label class="form-label" for="mod-texto">Tu reflexión <span class="req">*</span><br><span class="opt">(mínimo 50 caracteres)</span></label><textarea id="mod-texto" class="form-input long" placeholder="Escribe libremente lo que sientes, piensas o quieres expresar…" minlength="50" maxlength="2000"></textarea><div class="char-counter" id="cnt-texto">0 / 2000 (mín. 50)</div></div>
+        <div class="form-group"><label class="form-label" for="mod-ampliacion">¿Quieres ampliar? <span class="opt">(opcional)</span></label><textarea id="mod-ampliacion" class="form-input xl" placeholder="Agrega más detalles…" maxlength="5000"></textarea><div class="char-counter" id="cnt-ampliacion">0 / 5000</div></div>
+        <div class="form-group"><label class="form-label">Adjuntar imagen <span class="opt">(opcional)</span></label><div class="upload-area" onclick="document.getElementById('mod-imagen').click()"><div style="font-size:2rem">📎</div><p style="font-size:13px;color:var(--txt2);margin-top:8px">Toca para adjuntar una foto o dibujo</p><div style="font-size:11px;color:var(--txt2);margin-top:4px">JPG · PNG · Máx. 5MB</div><input type="file" id="mod-imagen" accept="image/jpeg,image/png,image/gif,image/webp"></div><img id="mod-preview" class="upload-preview" alt="Vista previa"><div class="download-hint" id="mod-download-badge" style="display:none">⬇️ Imagen guardada y descargable</div></div>
+        <div class="form-group"><label class="form-label" for="mod-animo">¿Cómo te sientes al terminar? <span class="req">*</span></label><select id="mod-animo" class="form-input"><option value="">-- Selecciona --</option><option value="mucho-mejor">😌 Mucho mejor</option><option value="algo-mejor">🙂 Algo mejor</option><option value="igual">😐 Igual que antes</option><option value="algo-peor">😔 Un poco más cargado/a</option><option value="necesito-apoyo">🆘 Necesito apoyo</option></select></div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <button class="btn btn-success" id="save-module">💾 Guardar reflexión</button>
+          <button class="btn btn-ghost btn-sm" id="download-module" style="display:none">⬇️ Descargar reflexión (.txt)</button>
+        </div>
+        <div id="module-history-section" style="margin-top:22px;display:none">
+          <div class="divider"></div>
+          <h3 class="section-title">📚 Mis reflexiones guardadas</h3>
+          <div id="module-history-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANTALLA 7: PANEL DOCENTE LOCAL -->
+    <div class="screen" id="screen-teacher">
+      <div class="banner banner-teacher" style="border-radius:var(--r) var(--r) 0 0">
+        <div class="banner-content"><span class="banner-emoji">📋</span><div class="banner-title">Panel Docente</div><div class="banner-sub">Seguimiento grupal · ACTiva Arte</div></div>
+      </div>
+      <div class="form-card" style="border-radius:0 0 var(--r) var(--r)">
+        <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-sm" style="width:auto" onclick="showScreen('screen-mode')">← Salir</button>
+          <button class="btn btn-ghost btn-sm" style="width:auto" id="export-teacher-html">📄 Reporte HTML</button>
+          <button class="btn btn-ghost btn-sm" style="width:auto" id="export-teacher-excel">📊 CSV</button>
+        </div>
+
+        <!-- IMPORTAR JSON en panel local -->
+        <div style="background:linear-gradient(135deg,#0d1f3c,#003B71 70%,#005DA4);border-radius:14px;padding:22px;margin-bottom:18px">
+          <h3 style="font-family:'Lora',serif;color:#fff;font-size:1.1rem;margin-bottom:6px">📥 Importar datos de estudiantes</h3>
+          <p style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:16px">Carga los archivos <strong style="color:rgba(255,255,255,.85)">.json</strong> exportados por los estudiantes. Puedes cargar varios a la vez.</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+            <label for="local-file-in" style="flex:1;min-width:180px;display:flex;align-items:center;justify-content:center;gap:10px;padding:16px 20px;background:linear-gradient(135deg,#F2A900,#e09500);color:#003B71;border-radius:10px;font-size:15px;font-weight:900;cursor:pointer;box-shadow:0 4px 16px rgba(242,169,0,.4)">
+              <span style="font-size:1.6rem">📂</span> Importar JSON de estudiantes
+            </label>
+            <input type="file" id="local-file-in" accept=".json,application/json" multiple style="display:none">
+            <div id="local-dz" style="flex:1;min-width:140px;border:2px dashed rgba(255,255,255,.2);border-radius:10px;padding:16px;text-align:center;cursor:pointer;background:rgba(255,255,255,.03);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px" onclick="document.getElementById('local-file-in').click()">
+              <span style="font-size:1.4rem">🗂️</span>
+              <span style="color:rgba(255,255,255,.4);font-size:12px">o arrastra aquí</span>
+            </div>
+          </div>
+          <div id="local-load-st"></div>
+        </div>
+        <div class="card" id="teacher-summary"></div>
+        <div class="card">
+          <h3 class="section-title">🧠 Emociones del grupo (30 días)</h3>
+          <div class="em-hist-grid" id="teacher-emotion-history"></div>
+        </div>
+        <div class="card">
+          <h3 class="section-title">👥 Estudiantes</h3>
+          <div class="table-wrap">
+            <table class="data-table" aria-label="Tabla de estudiantes">
+              <thead><tr><th>Nombre</th><th>Rol</th><th>Sesiones</th><th>Racha</th><th>Última</th></tr></thead>
+              <tbody id="teacher-students"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <h3 class="section-title">📈 Patrones detectados</h3>
+          <ul id="pattern-list" style="padding-left:18px;font-size:14px;line-height:2.2"></ul>
+        </div>
+        <div class="card">
+          <h3 class="section-title">🖼️ Banco de respuestas e imágenes</h3>
+          <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+            <select class="form-input" id="filter-student" style="flex:1;min-width:120px;padding:8px 12px;font-size:13px" aria-label="Filtrar por estudiante"><option value="">Todos</option></select>
+            <select class="form-input" id="filter-exercise" style="flex:1;min-width:120px;padding:8px 12px;font-size:13px" aria-label="Filtrar por ejercicio">
+              <option value="">Todos los ejercicios</option>
+              <option value="defusion">Defusión</option>
+              <option value="aceptacion">Aceptación</option>
+              <option value="yo">Mi Yo Firme</option>
+              <option value="valores">Mis Valores</option>
+              <option value="mandala">Mandala</option>
+              <option value="presente">Momento Presente</option>
+              <option value="modulo">Módulo Reflexión</option>
+            </select>
+          </div>
+          <div class="gal-grid" id="teacher-gallery"></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <button class="btn btn-success" id="export-html">📄 Exportar Reporte HTML completo</button>
+          <button class="btn btn-ghost btn-sm" id="export-data">⬇️ Exportar JSON de datos</button>
+          <button class="btn btn-ghost btn-sm" id="change-pin">🔑 Cambiar PIN</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODAL GLOBAL -->
+  <div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-box">
+      <button id="modal-close-btn" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--txt2);line-height:1">✕</button>
+      <h3 class="modal-title" id="modal-title">Aviso</h3>
+      <p id="modal-text" style="font-size:14px;margin-bottom:18px;color:var(--txt2)"></p>
+      <img id="modal-img" class="modal-img" alt="Imagen ampliada" style="display:none">
+      <div class="btn-pair">
+        <button class="btn btn-primary btn-sm" id="modal-ok">Aceptar</button>
+        <button class="btn btn-ghost btn-sm" id="close-modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /student-mode -->
+
+<script>
+/* ============================================================
+   CONSTANTES Y DATOS
+============================================================ */
+const STORAGE_KEY = 'activa_users_v3';
+const DOC_KEY     = 'activa_docente_v2';
+const STATE_KEY   = 'activa_state_v3';
+const DEFAULT_PIN_DOCENTE = 'UNADDOCENTE2026';
+const DEFAULT_PIN_ADMIN   = 'UNADADMIN2026';
+
+const EMOTIONS = [
+  { id:'pesado',    icon:'😔', label:'Pesado',     rec:'Defusión Cognitiva',       score:1 },
+  { id:'ansioso',   icon:'😰', label:'Ansioso',    rec:'Respiración y Aceptación', score:2 },
+  { id:'frustrado', icon:'😤', label:'Frustrado',  rec:'Mi Yo Firme',              score:2 },
+  { id:'neutral',   icon:'😐', label:'Neutral',    rec:'Elige con calma',          score:3 },
+  { id:'bien',      icon:'🙂', label:'Bien',       rec:'Refuerza tus valores',     score:4 },
+  { id:'muybien',   icon:'😄', label:'Muy bien',   rec:'¡Acción comprometida hoy!',score:5 }
+];
+
+const EXERCISES = [
+  { id:'defusion',  icon:'🍃', title:'Hojas en el Río',        process:'Defusión Cognitiva',       tiempo:'8 min',
+    intro:'Imagina que tus pensamientos son hojas flotando en un río. No luchas con ellos, simplemente los dejas pasar.',
+    instruccion:'Siéntate cómodo/a, cierra los ojos y observa tus pensamientos. Después, dibuja o escribe lo que sentiste.',
+    prompts:['¿Qué pensamiento pusiste en la hoja hoy?','¿Cómo te sentiste al dejarlo ir?'] },
+  { id:'aceptacion',icon:'🫁', title:'Respiración y Aceptación',process:'Aceptación',               tiempo:'6 min',
+    intro:'La aceptación no es resignación. Es dejar de luchar contra lo que ya está aquí.',
+    instruccion:'Sigue el ritmo del círculo: inhala cuando crece, exhala cuando se encoge.',
+    prompts:['¿Qué estás aceptando hoy sin luchar contra ello?'], breathe:true },
+  { id:'yo',        icon:'⛰️', title:'Mi Yo Firme',            process:'Yo como Contexto',         tiempo:'10 min',
+    intro:'Eres el cielo, no la tormenta. Las emociones pasan; tú permaneces.',
+    instruccion:'Respira y responde las preguntas con calma. No hay respuestas correctas.',
+    prompts:['¿Quién eres más allá de tus emociones de hoy?','¿Qué fortaleza tuya nunca cambia?','¿Qué le dirías a tus pensamientos difíciles desde tu yo más firme?'] },
+  { id:'valores',   icon:'🌱', title:'Mis Valores',            process:'Clarificación de Valores', tiempo:'12 min',
+    intro:'Tus valores son tu brújula. No lo que deberías hacer, sino lo que te llena de verdad.',
+    instruccion:'Selecciona tus 5 valores más importantes. Luego escribe cómo los vives en tu vereda.',
+    prompts:['¿Cómo vives tus valores elegidos en tu vida diaria?'],
+    values:['❤️ Amor','👨‍👩‍👧 Familia','📚 Aprendizaje','🌿 Naturaleza','💪 Valentía','🎨 Creatividad','🕊️ Paz','⚽ Deporte','🧠 Sabiduría','🌍 Comunidad','🙏 Fe','🎵 Música','💼 Trabajo','🌟 Logro','👥 Amistad','🏡 Hogar','🎯 Propósito','💚 Salud','🦋 Libertad','🌈 Diversidad'] },
+  { id:'mandala',   icon:'🎨', title:'Mandala de Valores',     process:'Acción Comprometida',      tiempo:'15 min',
+    intro:'Pinta tu mandala con los colores de lo que más importa. Cada trazo es una acción hacia tu mejor versión.',
+    instruccion:'Pinta el mandala impreso o dibuja el tuyo. Luego sube una foto.',
+    prompts:['¿Qué hiciste hoy que esté alineado con tus valores?','¿Cómo te sentiste al crear?'], imagen:'img/mandala.jpg' },
+  { id:'presente',  icon:'🌤️', title:'Momento Presente',       process:'Contacto con el Presente', tiempo:'7 min',
+    intro:'Lo único real es este momento.',
+    instruccion:'Técnica 5-4-3-2-1: responde cada pregunta con lo que percibes AHORA MISMO.',
+    grounding:true,
+    prompts:['5 cosas que VEO ahora mismo','4 cosas que TOCO o siento en mi cuerpo','3 cosas que ESCUCHO en este momento','2 cosas que HUELO o podría oler','1 cosa que SABOREO o me gusta saborear','¿Qué notas diferente después de este ejercicio?'] }
+];
+
+const LOGROS = [
+  { id:'primera',   icon:'🌱', title:'Primera semilla',    desc:'Completa tu primer ejercicio',        condicion:(s)=>totalEjs(s)>=1 },
+  { id:'reflexion', icon:'✍️', title:'Voz propia',         desc:'Guarda tu primera reflexión',         condicion:(s)=>totalModulos(s)>=1 },
+  { id:'racha3',    icon:'🔥', title:'Racha de 3',         desc:'3 días consecutivos',                 condicion:(s,streak)=>streak>=3 },
+  { id:'racha7',    icon:'💎', title:'Semana perfecta',    desc:'7 días activos en una semana',        condicion:(s,streak)=>streak>=7 },
+  { id:'fotografo', icon:'📸', title:'Artista visual',     desc:'Sube 5 imágenes',                    condicion:(s)=>totalImgs(s)>=5 },
+  { id:'explorador',icon:'🌈', title:'Explorador ACT',     desc:'Completa los 6 ejercicios al menos 1 vez', condicion:(s)=>ejerciciosUnicos(s)>=6 },
+  { id:'guardian',  icon:'🏆', title:'Guardián de valores',desc:'Completa Valores 5 veces',            condicion:(s)=>ejCount(s,'valores')>=5 },
+  { id:'presente5', icon:'🧘', title:'Maestro presente',   desc:'Completa Momento Presente 7 veces',  condicion:(s)=>ejCount(s,'presente')>=7 },
+  { id:'100pts',    icon:'⭐', title:'100 puntos',         desc:'Acumula 100 puntos',                  condicion:(s,streak,pts)=>pts>=100 }
+];
+
+function totalEjs(sesiones)    { return sesiones.flatMap(s=>s.ejerciciosCompletados||[]).length; }
+function totalImgs(sesiones)   { return sesiones.flatMap(s=>s.ejerciciosCompletados||[]).filter(e=>e.imagenBase64).length; }
+function ejerciciosUnicos(ses) { return new Set(ses.flatMap(s=>s.ejerciciosCompletados||[]).map(e=>e.tipo)).size; }
+function ejCount(ses,tipo)     { return ses.flatMap(s=>s.ejerciciosCompletados||[]).filter(e=>e.tipo===tipo).length; }
+function totalModulos(sesiones){ return sesiones.filter(s=>s.modulo).length; }
+
+/* ============================================================
+   ESTADO DE LA SESIÓN
+============================================================ */
+let state = { mode:null, rol:null, user:null, emotion:null, sessionId:null, activeExercise:null, points:0, selectedValues:[] };
+
+function loadState(){ try{ const s=sessionStorage.getItem(STATE_KEY); if(s) Object.assign(state,JSON.parse(s)); }catch{} }
+function saveState(){ try{ sessionStorage.setItem(STATE_KEY,JSON.stringify(state)); }catch{} }
+
+/* ============================================================
+   PERSISTENCIA — localStorage
+============================================================ */
+function getUsers(){
+  try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)||'{"usuarios":[]}'); }
+  catch{ return {usuarios:[]}; }
+}
+function setUsers(data){ localStorage.setItem(STORAGE_KEY,JSON.stringify(data)); }
+
+function getConfig(){
+  try{ return JSON.parse(localStorage.getItem(DOC_KEY)||JSON.stringify({pinDocente:DEFAULT_PIN_DOCENTE,pinAdministrador:DEFAULT_PIN_ADMIN,nombreDocente:'Profa. UNAD',grupoNombre:'Vereda'})); }
+  catch{ return {pinDocente:DEFAULT_PIN_DOCENTE,pinAdministrador:DEFAULT_PIN_ADMIN,nombreDocente:'Profa. UNAD',grupoNombre:'Vereda'}; }
+}
+function setConfig(cfg){ localStorage.setItem(DOC_KEY,JSON.stringify(cfg)); }
+
+function getUserById(id){ return getUsers().usuarios.find(u=>u.id===id); }
+
+function saveUser(user){
+  const data=getUsers();
+  const idx=data.usuarios.findIndex(u=>u.id===user.id);
+  if(idx>=0) data.usuarios[idx]=user; else data.usuarios.push(user);
+  setUsers(data);
+}
+
+function createOrGetUser(name, rol='estudiante'){
+  const data=getUsers();
+  let user=data.usuarios.find(u=>u.nombre.toLowerCase()===name.toLowerCase().trim());
+  if(!user){
+    user={ id:'u-'+Date.now(), nombre:name.trim(), rol:rol, fechaRegistro:new Date().toISOString(), sesiones:[], puntos:0, logros:[] };
+    data.usuarios.push(user); setUsers(data);
+  } else {
+    // Actualizar rol si cambió
+    if(user.rol!==rol){ user.rol=rol; saveUser(user); }
+  }
+  state.user=user; saveState();
+}
+
+function getOrCreateSession(){
+  const user=getUserById(state.user.id);
+  const today=new Date().toISOString().split('T')[0];
+  let session=user.sesiones?.find(s=>s.fecha.startsWith(today));
+  if(!session){
+    session={ id:'s-'+Date.now(), fecha:new Date().toISOString(), emocionInicio:state.emotion, emocionFin:'', ejerciciosCompletados:[], modulo:null };
+    user.sesiones=user.sesiones||[];
+    user.sesiones.push(session);
+    saveUser(user);
+  }
+  state.sessionId=session.id;
+  saveState();
+  return session;
+}
+
+/* ============================================================
+   RACHA Y ESTADÍSTICAS
+============================================================ */
+function calcStreak(uid){
+  const user=getUserById(uid);
+  if(!user||!user.sesiones||!user.sesiones.length) return 0;
+  const dias=[...new Set(user.sesiones.map(s=>s.fecha.split('T')[0]))].sort((a,b)=>b.localeCompare(a));
+  let streak=0, ref=new Date(); ref.setHours(23,59,59);
+  for(const d of dias){
+    const date=new Date(d+'T23:59:59');
+    const diff=(ref-date)/(1000*60*60*24);
+    if(diff<1.5){ streak++; ref.setDate(ref.getDate()-1); }
+    else break;
+  }
+  return streak;
+}
+
+function getWeekDays(){
+  const days=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date(); d.setDate(d.getDate()-i);
+    days.push(d.toISOString().split('T')[0]);
+  }
+  return days;
+}
+
+/* Contar emociones en los últimos N días */
+function countEmotionsLastDays(sesiones, days=30){
+  const cutoff=new Date(); cutoff.setDate(cutoff.getDate()-days);
+  const count={};
+  EMOTIONS.forEach(e=>{ count[e.id]=0; });
+  sesiones.forEach(s=>{
+    if(new Date(s.fecha)>=cutoff && s.emocionInicio){
+      count[s.emocionInicio]=(count[s.emocionInicio]||0)+1;
+    }
+  });
+  return count;
+}
+
+/* ============================================================
+   UI HELPERS
+============================================================ */
+function showScreen(id){
+  // Forzar cierre completo del modal
+  const overlay = document.getElementById('modal-overlay');
+  if(overlay) {
+    overlay.classList.remove('show');
+    overlay.style.display = 'none';
+    overlay.style.pointerEvents = 'none';
+  }
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const sc=document.getElementById(id);
+  if(sc){ sc.classList.add('active'); window.scrollTo({top:0,behavior:'smooth'}); }
+}
+
+function toast(text, duration=3000){
+  const el=document.createElement('div');
+  el.className='toast'; el.textContent=text;
+  document.body.appendChild(el);
+  setTimeout(()=>{ if(el.parentNode) el.remove(); }, duration);
+}
+
+function openModal(title, text, imgSrc=null){
+  document.getElementById('modal-title').textContent=title;
+  document.getElementById('modal-text').textContent=text;
+  const img=document.getElementById('modal-img');
+  if(imgSrc){ img.src=imgSrc; img.style.display='block'; }
+  else { img.style.display='none'; }
+  const overlay = document.getElementById('modal-overlay');
+  overlay.classList.add('show');
+  overlay.style.display = 'flex';
+  overlay.style.pointerEvents = 'auto';
+}
+function closeModal(){
+  const overlay = document.getElementById('modal-overlay');
+  overlay.classList.remove('show');
+  overlay.style.display = 'none';
+  overlay.style.pointerEvents = 'none';
+  document.getElementById('modal-img').style.display='none';
+}
+
+function updateHeaderPoints(){
+  const pts = state.user?.puntos || state.points || 0;
+  document.getElementById('header-points').textContent = pts+' pts';
+}
+
+/* Contador de caracteres */
+function setupCharCounter(inputId, counterId, min=0){
+  const el=document.getElementById(inputId);
+  const cnt=document.getElementById(counterId);
+  if(!el||!cnt) return;
+  const max=el.maxLength||9999;
+  const update=()=>{
+    const len=el.value.length;
+    if(min>0) cnt.textContent=len+' / '+max+' (mín. '+min+')';
+    else cnt.textContent=len+' / '+max;
+    cnt.className='char-counter '+(len>=max?'warn':len>=min&&min>0?'ok':'');
+  };
+  el.addEventListener('input', update);
+  update();
+}
+
+/* ============================================================
+   PANTALLA 0: SELECTOR DE ROL
+============================================================ */
+let selectedRole = null;
+
+function selectRole(rol){
+  selectedRole=rol;
+  document.querySelectorAll('.role-card').forEach(c=>c.classList.remove('selected'));
+  const target = document.querySelector('[data-role="'+rol+'"]');
+  if(target) target.classList.add('selected');
+  const btn = document.getElementById('btn-continue-role');
+  if(btn) btn.disabled = false;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('btn-continue-role')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    console.log('BTN CONTINUE CLICKED, selectedRole:', selectedRole);
+    if(!selectedRole) { alert('Selecciona un rol primero'); return; }
+    if(selectedRole==='profesor'||selectedRole==='administrador'){
+      const pin=prompt('PIN de acceso:');
+      if(!pin) return;
+      const cfg=getConfig();
+      const targetPin = selectedRole==='profesor' ? cfg.pinDocente || DEFAULT_PIN_DOCENTE : cfg.pinAdministrador || DEFAULT_PIN_ADMIN;
+      if(pin.trim()===targetPin){
+        state.mode=selectedRole; saveState();
+        buildTeacher(); showScreen('screen-teacher');
+      } else {
+        openModal('PIN incorrecto','Verifica el código con tu coordinador.');
+      }
+      return;
+    }
+    const name=prompt('¿Cuál es tu nombre?');
+    if(!name||!name.trim()) return;
+    createOrGetUser(name, selectedRole);
+    state.mode=selectedRole; saveState();
+    buildCheckin(); showScreen('screen-checkin');
+  });
+});
+
+/* ============================================================
+   PANTALLA 1: CHECK-IN EMOCIONAL
+============================================================ */
+function buildCheckin(){
+  const name=state.user?.nombre||'';
+  document.getElementById('checkin-greeting').textContent='Hola, '+name+' 👋';
+
+  // Alerta patrón negativo
+  const user=getUserById(state.user?.id);
+  if(user&&user.sesiones){
+    const last3=user.sesiones.slice(-3).map(s=>EMOTIONS.find(e=>e.id===s.emocionInicio)?.score||3);
+    const avg=last3.reduce((a,b)=>a+b,0)/last3.length;
+    if(last3.length>=3&&avg<=2) document.getElementById('alert-support').classList.add('show');
+  }
+
+  const grid=document.getElementById('emotion-grid');
+  grid.innerHTML='';
+
+  // Mostrar conteo histórico de cada emoción
+  const emCount = user ? countEmotionsLastDays(user.sesiones||[], 30) : {};
+
+  EMOTIONS.forEach(em=>{
+    const cnt=emCount[em.id]||0;
+    const btn=document.createElement('button');
+    btn.className='emotion-pill';
+    btn.setAttribute('aria-label','Seleccionar emoción: '+em.label);
+    btn.innerHTML=`<span class="em-icon">${em.icon}</span><span class="em-label">${em.label}</span>${cnt>0?'<span class="em-count">Este mes: '+cnt+'x</span>':''}`;
+    btn.addEventListener('click',()=>{
+      [...grid.children].forEach(x=>x.classList.remove('selected'));
+      btn.classList.add('selected');
+      state.emotion=em.id; saveState();
+      document.getElementById('recommend-text').textContent=em.rec;
+      document.getElementById('recommendation').style.display='block';
+      document.getElementById('btn-validate').disabled=false;
+    });
+    grid.appendChild(btn);
+  });
+}
+
+document.getElementById('btn-validate').addEventListener('click',()=>{
+  if(!state.emotion){ openModal('Elige tu emoción','Toca cómo te sientes hoy para continuar.'); return; }
+  getOrCreateSession();
+  buildDashboard();
+  showScreen('screen-dashboard');
+});
+
+/* ============================================================
+   PANTALLA 2: DASHBOARD
+============================================================ */
+function buildDashboard(){
+  const user=getUserById(state.user?.id);
+  if(!user) return;
+
+  const streak=calcStreak(user.id);
+  const pts=user.puntos||0;
+  state.points=pts; updateHeaderPoints();
+
+  document.getElementById('streak-num').textContent=streak;
+  document.getElementById('week-number').textContent=Math.max(1,Math.ceil((new Date()-new Date(user.fechaRegistro))/(1000*60*60*24*7)));
+  document.getElementById('progress-inner').style.width=Math.min(100,(streak/7)*100)+'%';
+  document.getElementById('dash-points').textContent=pts;
+
+  const em=EMOTIONS.find(e=>e.id===state.emotion);
+  if(em){
+    document.getElementById('today-recommend').textContent=em.rec;
+    document.getElementById('today-recommend-box').style.display='block';
+  }
+
+  const today=new Date().toISOString().split('T')[0];
+  const todaySession=user.sesiones?.find(s=>s.fecha.startsWith(today));
+  const doneToday=todaySession?.ejerciciosCompletados?.map(e=>e.tipo)||[];
+
+  const container=document.getElementById('exercise-cards');
+  container.innerHTML='';
+  EXERCISES.forEach(ex=>{
+    const done=doneToday.includes(ex.id);
+    const card=document.createElement('article');
+    card.className='card card-exercise'+(done?' done':'');
+    card.setAttribute('role','button');
+    card.setAttribute('tabindex','0');
+    card.setAttribute('aria-label',(done?'Completado: ':'')+ex.title);
+    card.innerHTML=`<span class="ex-icon">${ex.icon}</span>
+      <span class="ex-title">${ex.title}</span>
+      <span class="ex-sub">${ex.process} · ${ex.tiempo}</span>
+      <span class="ex-badge ${done?'badge-done':'badge-pending'}">${done?'✓ Completado':'Pendiente'}</span>`;
+    card.addEventListener('click',()=>startExercise(ex.id));
+    card.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); startExercise(ex.id); }});
+    container.appendChild(card);
+  });
+}
+
+/* ============================================================
+   PANTALLA 3: EJERCICIO ACTIVO
+============================================================ */
+function startExercise(exId){
+  state.activeExercise=exId; saveState();
+  const ex=EXERCISES.find(x=>x.id===exId);
+  state.selectedValues=[];
+  const det=document.getElementById('exercise-detail');
+  det.innerHTML='';
+
+  let html=`
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+      <button class="btn btn-ghost btn-sm" style="width:auto;padding:8px 14px;" onclick="showScreen('screen-dashboard')">← Volver</button>
+    </div>
+    <div class="form-card-header" style="border-radius:var(--radius) var(--radius) 0 0;">
+      <div style="font-size:2.2rem;margin-bottom:6px;">${ex.icon}</div>
+      <h2 style="font-family:'Lora',serif;font-size:1.2rem;">${ex.title}</h2>
+      <p>${ex.process} · ${ex.tiempo}</p>
+    </div>
+    <div class="form-card-body" style="border-radius:0 0 var(--radius) var(--radius);margin-bottom:14px;">
+      <div class="instr-box">${ex.intro}</div>
+      <p style="font-size:13px;color:var(--texto-sec);">${ex.instruccion}</p>
+    </div>`;
+
+
+  if(ex.breathe){
+    html+=`<div class="card breathe-wrap" style="margin-bottom:12px;">
+      <div class="breathe-circle" aria-hidden="true"></div>
+      <div class="breathe-text">Inhala... sostén... exhala... sostén...</div>
+    </div>`;
+  }
+
+  if(ex.grounding){
+    const labels=['5 cosas que VEO','4 cosas que TOCO','3 cosas que ESCUCHO','2 cosas que HUELO','1 cosa que SABOREO','¿Qué notas diferente?'];
+    html+=`<div class="card" style="margin-bottom:12px;"><p style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--unad-azul-oscuro);">✍️ Responde con calma:</p>`;
+    labels.forEach((lbl,i)=>{
+      html+=`<div class="grounding-step">
+        <div class="step-label">${lbl}</div>
+        <textarea id="grounding-${i}" class="form-input" rows="2" placeholder="Escribe aquí..." style="border:none;border-bottom:2px solid #CBD5E0;" minlength="3" aria-label="${lbl}"></textarea>
+        <div class="char-counter" id="gcnt-${i}">0 caracteres</div>
+      </div>`;
+    });
+    html+=`</div>`;
+  }
+
+  if(ex.values){
+    html+=`<div class="card" style="margin-bottom:12px;">
+      <p style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--unad-azul-oscuro);">Selecciona tus 5 valores más importantes:</p>
+      <div class="grid-auto" id="values-grid">`;
+    ex.values.forEach((v,i)=>{
+      html+=`<div class="valor-chip" data-val="${i}" tabindex="0" role="checkbox" aria-checked="false" aria-label="${v}">${v}</div>`;
+    });
+    html+=`</div></div>`;
+  }
+
+  if(ex.prompts&&!ex.grounding){
+    html+=`<div class="card" style="margin-bottom:12px;">
+      <p style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--unad-azul-oscuro);">✍️ Reflexiona:</p>`;
+    ex.prompts.forEach((p,i)=>{
+      const isLong=p.length>40;
+      html+=`<div class="form-group">
+        <label class="form-label" for="prompt-${i}">${p} <span style="font-size:11px;font-weight:400;color:var(--texto-sec);">(mín. 10 caracteres)</span></label>
+        <textarea id="prompt-${i}" class="form-input ${isLong?'long':'short'}" placeholder="Escribe con calma..." minlength="10" maxlength="1000"></textarea>
+        <div class="char-counter" id="pcnt-${i}">0 / 1000</div>
+      </div>`;
+    });
+    html+=`</div>`;
+  }
+
+  if(ex.imagen){
+    html+=`<div class="card" style="margin-bottom:12px;text-align:center;">
+      <p style="font-size:13px;font-weight:700;margin-bottom:10px;">🖼️ Tu guía visual:</p>
+      <img src="${ex.imagen}" alt="Mandala para colorear" style="border-radius:var(--radius-sm);max-height:220px;margin:0 auto;" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+      <p style="display:none;font-size:12px;color:var(--texto-sec);">Agrega <code>mandala.jpg</code> en la carpeta <code>img/</code></p>
+    </div>`;
+  }
+
+  html+=`<div class="card" style="margin-bottom:12px;">
+    <p style="font-size:13px;font-weight:700;margin-bottom:10px;">📸 Adjuntar imagen de tu trabajo <span style="font-size:11px;font-weight:400;color:var(--texto-sec);">(opcional)</span>:</p>
+    <div class="upload-area" onclick="document.getElementById('input-image').click()">
+      <div style="font-size:2rem;">📷</div>
+      <p style="font-size:13px;color:var(--texto-sec);margin-top:6px;">Toca para elegir una foto o dibujo</p>
+      <div class="upload-types">JPG · PNG · GIF · WEBP · Máx. 5MB</div>
+      <input type="file" id="input-image" accept="image/jpeg,image/png,image/gif,image/webp">
+    </div>
+    <img id="upload-preview" class="upload-preview" alt="Vista previa" style="display:none;">
+    <div class="download-hint" id="upload-download-badge" style="display:none;">⬇️ Imagen guardada — descargable en Mi Progreso</div>
+  </div>`;
+
+  html+=`<div class="card" style="margin-bottom:12px;">
+    <label class="form-label" for="input-feeling">¿Cómo te sientes DESPUÉS del ejercicio?</label>
+    <select id="input-feeling" class="form-input rounded" aria-required="true">
+      <option value="">-- Selecciona una emoción --</option>
+      <option value="pesado">😔 Pesado</option>
+      <option value="ansioso">😰 Ansioso</option>
+      <option value="frustrado">😤 Frustrado</option>
+      <option value="neutral">😐 Neutral</option>
+      <option value="bien">🙂 Bien</option>
+      <option value="muybien">😄 Muy bien</option>
+    </select>
+  </div>`;
+
+  html+=`<div class="card" style="margin-bottom:12px;">
+    <label class="form-label" for="input-rating">Autoevaluación del ejercicio (1-10)</label>
+    <div class="range-wrapper">
+      <input type="range" id="input-rating" min="1" max="10" value="5">
+      <span class="range-value" id="rating-value" aria-live="polite">5</span>
+    </div>
+  </div>`;
+
+  html+=`<div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;">
+    <button class="btn btn-success" id="save-exercise">✓ Guardar y Completar</button>
+    <button class="btn-stop" onclick="showScreen('screen-dashboard')">⚠️ Necesito parar — volver al tablero</button>
+  </div>`;
+
+  det.innerHTML=html;
+
+  // Contadores de caracteres
+  if(ex.grounding){
+    const labels=['5 cosas que VEO','4 cosas que TOCO','3 cosas que ESCUCHO','2 cosas que HUELO','1 cosa que SABOREO','¿Qué notas?'];
+    labels.forEach((_,i)=>{
+      const el=document.getElementById('grounding-'+i);
+      const cnt=document.getElementById('gcnt-'+i);
+      if(el&&cnt) el.addEventListener('input',()=>{ cnt.textContent=el.value.length+' caracteres'; });
+    });
+  }
+  if(ex.prompts&&!ex.grounding){
+    ex.prompts.forEach((_,i)=>{
+      const el=document.getElementById('prompt-'+i);
+      const cnt=document.getElementById('pcnt-'+i);
+      if(el&&cnt) el.addEventListener('input',()=>{ cnt.textContent=el.value.length+' / 1000'; cnt.className='char-counter '+(el.value.length>=10?'ok':''); });
+    });
+  }
+
+  // Preview imagen
+  const imgInput=document.getElementById('input-image');
+  const preview=document.getElementById('upload-preview');
+  imgInput.addEventListener('change',()=>{
+    const file=imgInput.files[0];
+    if(!file) return;
+    if(file.size>5*1024*1024){ openModal('Imagen muy grande','La foto no puede superar 5MB.'); imgInput.value=''; return; }
+    const reader=new FileReader();
+    reader.onload=e=>{ preview.src=e.target.result; preview.style.display='block'; document.getElementById('upload-download-badge').style.display='inline-flex'; };
+    reader.readAsDataURL(file);
+  });
+
+  // Rating
+  document.getElementById('input-rating').addEventListener('input',e=>{
+    document.getElementById('rating-value').textContent=e.target.value;
+  });
+
+  // Valores chips
+  const valGrid=document.getElementById('values-grid');
+  if(valGrid){
+    valGrid.addEventListener('click',e=>{
+      const chip=e.target.closest('.valor-chip');
+      if(!chip) return;
+      const already=chip.classList.contains('selected');
+      if(!already&&state.selectedValues.length>=5){ toast('Máximo 5 valores'); return; }
+      chip.classList.toggle('selected');
+      chip.setAttribute('aria-checked', chip.classList.contains('selected')?'true':'false');
+      if(already) state.selectedValues=state.selectedValues.filter(v=>v!==chip.dataset.val);
+      else state.selectedValues.push(chip.dataset.val);
+    });
+    valGrid.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); e.target.click(); }});
+  }
+
+  document.getElementById('save-exercise').addEventListener('click',()=>saveExercise());
+  showScreen('screen-exercise');
+}
+
+/* ============================================================
+   GUARDAR EJERCICIO
+============================================================ */
+function saveExercise(){
+  const ex=EXERCISES.find(x=>x.id===state.activeExercise);
+  if(!ex){ openModal('Error','No hay ejercicio activo.'); return; }
+
+  let reflexionTexto='';
+  if(ex.grounding){
+    reflexionTexto=[...document.querySelectorAll('[id^="grounding-"]')].map(t=>t.value.trim()).filter(Boolean).join(' | ');
+  } else if(ex.prompts){
+    reflexionTexto=ex.prompts.map((_,i)=>document.getElementById('prompt-'+i)?.value.trim()||'').filter(Boolean).join(' | ');
+  }
+  const valoresSeleccionados=state.selectedValues.map(i=>ex.values?.[i]||'').filter(Boolean).join(', ');
+  if(valoresSeleccionados) reflexionTexto+=(reflexionTexto?' | ':'')+'Valores: '+valoresSeleccionados;
+
+  if(ex.values && state.selectedValues.length<5){
+    openModal('Selecciona valores','Este ejercicio requiere seleccionar al menos 5 valores.');
+    return;
+  }
+
+  if(ex.grounding){
+    const groundingVals=[...document.querySelectorAll('[id^="grounding-"]')].map(t=>t.value.trim());
+    if(groundingVals.some(v=>v.length<3)){
+      openModal('Completa todas las respuestas','Cada paso del ejercicio es obligatorio. Escribe al menos 3 caracteres por ítem.');
+      return;
+    }
+  }
+
+  if(ex.prompts&&!ex.grounding){
+    const promptVals=ex.prompts.map((_,i)=>document.getElementById('prompt-'+i)?.value.trim()||'');
+    if(promptVals.some(v=>v.length<10)){
+      openModal('Completa todas las respuestas','Cada paso del ejercicio es obligatorio. Escribe al menos 10 caracteres por pregunta.');
+      return;
+    }
+  }
+
+  const finalEmotion=document.getElementById('input-feeling')?.value;
+  if(!finalEmotion){
+    openModal('Falta respuesta','Selecciona cómo te sentiste al terminar la terapia para continuar.');
+    return;
+  }
+
+  const rating=parseInt(document.getElementById('input-rating')?.value,10)||5;
+  const file=document.getElementById('input-image')?.files[0];
+
+  compressImage(file, imgBase64=>{
+    const user=getUserById(state.user.id);
+    const session=user.sesiones.find(s=>s.id===state.sessionId);
+    if(!session){ openModal('Error de sesión','Vuelve al tablero e intenta de nuevo.'); return; }
+
+    const entry={
+      tipo:ex.id, titulo:ex.title, fecha:new Date().toISOString(),
+      reflexionTexto, imagenBase64:imgBase64||null, puntuacion:rating, duracion:ex.tiempo,
+      emocionFinal: finalEmotion
+    };
+
+    session.ejerciciosCompletados=session.ejerciciosCompletados||[];
+    const idx=session.ejerciciosCompletados.findIndex(e=>e.tipo===ex.id);
+    if(idx>=0) session.ejerciciosCompletados[idx]=entry; else session.ejerciciosCompletados.push(entry);
+
+    let pts=10;
+    if(imgBase64) pts+=5;
+    if(reflexionTexto.length>50) pts+=5;
+    const streak=calcStreak(user.id);
+    if(streak>=7) pts=Math.round(pts*2);
+    else if(streak>=3) pts=Math.round(pts*1.5);
+    user.puntos=(user.puntos||0)+pts;
+
+    saveUser(user);
+    state.points=user.puntos; saveState(); updateHeaderPoints();
+    checkLogros(user);
+
+    const btn=document.getElementById('save-exercise');
+    if(btn){ btn.textContent='✓ ¡Guardado!'; btn.classList.add('celebrating'); }
+    toast('🎉 +'+pts+' puntos');
+    setTimeout(()=>{ buildDashboard(); showScreen('screen-dashboard'); }, 900);
+  });
+}
+
+/* ============================================================
+   COMPRIMIR IMAGEN
+============================================================ */
+function compressImage(file, callback){
+  if(!file){ callback(null); return; }
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const img=new Image();
+    img.onload=()=>{
+      const MAX=900;
+      let w=img.width, h=img.height;
+      if(w>MAX||h>MAX){
+        if(w>h){ h=Math.round(h*MAX/w); w=MAX; }
+        else { w=Math.round(w*MAX/h); h=MAX; }
+      }
+      const canvas=document.createElement('canvas');
+      canvas.width=w; canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      callback(canvas.toDataURL('image/jpeg',0.78));
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+/* ============================================================
+   MÓDULO DE REFLEXIÓN
+============================================================ */
+document.getElementById('show-module').addEventListener('click',()=>{
+  setupModuleScreen(); showScreen('screen-module');
+});
+
+function setupModuleScreen(){
+  // Configurar contadores
+  setupCharCounter('mod-titulo','cnt-titulo',0);
+  setupCharCounter('mod-texto','cnt-texto',50);
+  setupCharCounter('mod-ampliacion','cnt-ampliacion',0);
+
+  // Preview imagen — usar .onchange para evitar acumulación de listeners duplicados
+  const imgInput=document.getElementById('mod-imagen');
+  const preview=document.getElementById('mod-preview');
+  imgInput.onchange = function(){
+    const file=imgInput.files[0];
+    if(!file) return;
+    if(file.size>5*1024*1024){ openModal('Imagen muy grande','La foto no puede superar 5MB.'); imgInput.value=''; return; }
+    const reader=new FileReader();
+    reader.onload=e=>{ preview.src=e.target.result; preview.style.display='block'; document.getElementById('mod-download-badge').style.display='inline-flex'; };
+    reader.readAsDataURL(file);
+  };
+
+  loadModuleHistory();
+}
+
+document.getElementById('save-module').addEventListener('click',()=>{
+  const titulo=document.getElementById('mod-titulo').value.trim();
+  const texto=document.getElementById('mod-texto').value.trim();
+  const ampliacion=document.getElementById('mod-ampliacion').value.trim();
+  const animo=document.getElementById('mod-animo').value;
+
+  if(!titulo){ openModal('Título requerido','Por favor escribe un título para tu reflexión.'); return; }
+  if(texto.length<50){ openModal('Reflexión muy corta','Tu reflexión debe tener al menos 50 caracteres. ¡Exprésate!'); return; }
+  if(!animo){ openModal('¿Cómo te sientes?','Selecciona tu estado de ánimo al finalizar.'); return; }
+
+  const imgInput=document.getElementById('mod-imagen');
+  const file=imgInput.files[0];
+
+  compressImage(file, imgBase64=>{
+    const user=getUserById(state.user?.id);
+    if(!user){ openModal('Error','Inicia sesión primero.'); return; }
+
+    const session=user.sesiones.find(s=>s.id===state.sessionId);
+    if(!session){ openModal('Error de sesión','Vuelve al tablero.'); return; }
+
+    const modEntry={
+      titulo, texto, ampliacion, animo,
+      imagenBase64:imgBase64||null,
+      fecha:new Date().toISOString()
+    };
+    session.modulo=modEntry;
+
+    let pts=15;
+    if(imgBase64) pts+=5;
+    if(ampliacion.length>100) pts+=5;
+    if(texto.length>200) pts+=5;
+    user.puntos=(user.puntos||0)+pts;
+
+    saveUser(user);
+    state.points=user.puntos; saveState(); updateHeaderPoints();
+    checkLogros(user);
+
+    // Mostrar botón de descarga
+    document.getElementById('download-module').style.display='block';
+    document.getElementById('download-module').onclick=()=>downloadReflexion(titulo,texto,ampliacion,animo);
+
+    toast('💾 Reflexión guardada +'+pts+' puntos');
+    loadModuleHistory();
+
+    // Limpiar form
+    document.getElementById('mod-titulo').value='';
+    document.getElementById('mod-texto').value='';
+    document.getElementById('mod-ampliacion').value='';
+    document.getElementById('mod-animo').value='';
+    document.getElementById('mod-preview').style.display='none';
+    document.getElementById('mod-download-badge').style.display='none';
+    ['cnt-titulo','cnt-texto','cnt-ampliacion'].forEach(id=>{
+      const el=document.getElementById(id); if(el) el.textContent='0 / '+({
+        'cnt-titulo':'80','cnt-texto':'2000 (mín. 50)','cnt-ampliacion':'5000'
+      }[id]);
+    });
+  });
+});
+
+function downloadReflexion(titulo,texto,ampliacion,animo){
+  const user=getUserById(state.user?.id);
+  const fecha=new Date().toLocaleDateString('es-CO',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const animoLabel={'mucho-mejor':'Mucho mejor','algo-mejor':'Algo mejor','igual':'Igual que antes','algo-peor':'Un poco más cargado/a','necesito-apoyo':'Necesito apoyo'}[animo]||animo;
+
+  let content=`REFLEXIÓN PERSONAL — ACTiva Arte · UNAD
+=========================================
+Nombre: ${user?.nombre||'—'}
+Fecha:  ${fecha}
+Estado al finalizar: ${animoLabel}
+
+TÍTULO: ${titulo}
+-----------------------------------------
+
+${texto}`;
+  if(ampliacion) content+=`\n\n--- AMPLIACIÓN ---\n${ampliacion}`;
+  content+=`\n\n=========================================\nACTiva Arte — Bienestar emocional UNAD\nCreado con Terapia de Aceptación y Compromiso (ACT)`;
+
+  const blob=new Blob([content],{type:'text/plain;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='Reflexion_'+titulo.replace(/\s+/g,'_').slice(0,30)+'_'+new Date().toISOString().slice(0,10)+'.txt';
+  a.click();
+  toast('⬇️ Reflexión descargada');
+}
+
+function loadModuleHistory(){
+  const user=getUserById(state.user?.id);
+  const section=document.getElementById('module-history-section');
+  const list=document.getElementById('module-history-list');
+  if(!user||!user.sesiones) return;
+
+  const modulos=user.sesiones.filter(s=>s.modulo).map(s=>({...s.modulo,sessionFecha:s.fecha})).reverse();
+  if(!modulos.length){ section.style.display='none'; return; }
+
+  section.style.display='block';
+  list.innerHTML='';
+  modulos.slice(0,5).forEach(m=>{
+    const fecha=new Date(m.sessionFecha).toLocaleDateString('es-CO',{day:'2-digit',month:'short',year:'numeric'});
+    const animoLabel={'mucho-mejor':'😌 Mucho mejor','algo-mejor':'🙂 Algo mejor','igual':'😐 Igual','algo-peor':'😔 Un poco más cargado/a','necesito-apoyo':'🆘 Necesita apoyo'}[m.animo]||m.animo;
+    const div=document.createElement('div');
+    div.className='card';
+    div.style.cssText='padding:14px;margin-bottom:10px;';
+    div.innerHTML=`
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:6px;">
+        <strong style="font-size:14px;color:var(--unad-azul-oscuro);">${m.titulo}</strong>
+        <span style="font-size:11px;color:var(--texto-sec);white-space:nowrap;margin-left:8px;">${fecha}</span>
+      </div>
+      <p style="font-size:13px;color:var(--texto-sec);margin-bottom:6px;">${m.texto.slice(0,120)}${m.texto.length>120?'...':''}</p>
+      ${m.imagenBase64?`<img src="${m.imagenBase64}" style="width:100%;max-height:120px;object-fit:cover;border-radius:8px;margin-bottom:6px;" alt="Imagen reflexión">`:''}
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+        <span style="font-size:12px;">${animoLabel}</span>
+        <button onclick="downloadReflexion('${m.titulo.replace(/'/g,"\\'")}','${m.texto.replace(/'/g,"\\'")}','${(m.ampliacion||'').replace(/'/g,"\\'")}','${m.animo}')" 
+          style="background:none;border:1px solid var(--unad-verde);border-radius:var(--radius-pill);padding:3px 10px;font-size:11px;color:var(--unad-verde);cursor:pointer;font-weight:700;">⬇️ Descargar</button>
+      </div>`;
+    list.appendChild(div);
+  });
+}
+
+/* ============================================================
+   PANTALLA 4: PROGRESO
+============================================================ */
+function buildProgress(){
+  const user=getUserById(state.user?.id);
+  if(!user) return;
+
+  const sesiones=user.sesiones||[];
+  const daysActive=new Set(sesiones.map(s=>s.fecha.split('T')[0])).size;
+  const bestStreak=calcStreak(user.id);
+  const images=totalImgs(sesiones);
+
+  document.getElementById('days-active').textContent=daysActive;
+  document.getElementById('best-streak').textContent=bestStreak;
+  document.getElementById('images-count').textContent=images;
+  document.getElementById('sessions-count').textContent=sesiones.length;
+
+  // Top emoción y ejercicio
+  const emotionCount={}, exerciseCount={};
+  sesiones.forEach(s=>{
+    emotionCount[s.emocionInicio]=(emotionCount[s.emocionInicio]||0)+1;
+    (s.ejerciciosCompletados||[]).forEach(e=>{ exerciseCount[e.tipo]=(exerciseCount[e.tipo]||0)+1; });
+  });
+  const topEm=Object.entries(emotionCount).sort((a,b)=>b[1]-a[1])[0]?.[0]||'—';
+  const topEx=Object.entries(exerciseCount).sort((a,b)=>b[1]-a[1])[0]?.[0]||'—';
+  const exObj=EXERCISES.find(e=>e.id===topEx);
+  document.getElementById('favorite-exercise').textContent=exObj?(exObj.icon+' '+exObj.title):'—';
+  document.getElementById('top-emotion').textContent=EMOTIONS.find(e=>e.id===topEm)?.label||topEm;
+
+  // Historial emocional mensual
+  buildEmotionHistory('emotion-history-grid', sesiones);
+
+  // Botón descarga reporte emocional
+  document.getElementById('download-emotion-report').onclick=()=>downloadEmotionReport(user, sesiones);
+
+  // Calendario 7 días
+  const weekDays=getWeekDays();
+  const calGrid=document.getElementById('calendar-grid');
+  calGrid.innerHTML='';
+  const DIAS=['D','L','M','X','J','V','S'];
+  weekDays.forEach(d=>{
+    const found=sesiones.find(s=>s.fecha.startsWith(d));
+    const dayObj=new Date(d+'T12:00:00');
+    const div=document.createElement('div');
+    div.className='cal-day'+(found?' active':'');
+    div.setAttribute('role','listitem');
+    div.innerHTML=`<span class="day-letter">${DIAS[dayObj.getDay()]}</span><span>${d.slice(8)}</span>${found?'<span style="font-size:8px;">'+(EMOTIONS.find(e=>e.id===found.emocionInicio)?.icon||'')+'</span>':''}`;
+    calGrid.appendChild(div);
+  });
+
+  drawEmotionChart(weekDays, sesiones);
+}
+
+function buildEmotionHistory(containerId, sesiones){
+  const container=document.getElementById(containerId);
+  if(!container) return;
+  const count=countEmotionsLastDays(sesiones,30);
+  container.innerHTML='';
+  EMOTIONS.forEach(em=>{
+    const div=document.createElement('div');
+    div.className='em-history-pill';
+    div.innerHTML=`<span class="em-h-icon">${em.icon}</span><span class="em-h-name">${em.label}</span><span class="em-h-count">${count[em.id]||0}x</span>`;
+    container.appendChild(div);
+  });
+}
+
+function downloadEmotionReport(user, sesiones){
+  const fecha=new Date().toLocaleDateString('es-CO',{year:'numeric',month:'long',day:'numeric'});
+  const count=countEmotionsLastDays(sesiones,30);
+  let content=`REPORTE EMOCIONAL — ACTiva Arte · UNAD
+=========================================
+Nombre: ${user.nombre}
+Fecha del reporte: ${fecha}
+Período: Últimos 30 días
+Total sesiones: ${sesiones.length}
+
+EMOCIONES REGISTRADAS:
+-----------------------------------------\n`;
+  EMOTIONS.forEach(em=>{
+    const n=count[em.id]||0;
+    const bar='█'.repeat(n)+'░'.repeat(Math.max(0,10-n));
+    content+=`${em.icon} ${em.label.padEnd(12)} ${bar} ${n} veces\n`;
+  });
+  content+=`\n-----------------------------------------\nGenerado por ACTiva Arte\nUniversidad Nacional Abierta y a Distancia — UNAD`;
+
+  const blob=new Blob([content],{type:'text/plain;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='Emociones_'+user.nombre.replace(/\s+/g,'_')+'_'+new Date().toISOString().slice(0,10)+'.txt';
+  a.click();
+  toast('⬇️ Reporte emocional descargado');
+}
+
+function drawEmotionChart(days, sesiones){
+  const canvas=document.getElementById('emotion-chart');
+  if(!canvas||!canvas.getContext) return;
+  const ctx=canvas.getContext('2d');
+  canvas.width=canvas.offsetWidth||340; canvas.height=160;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  const scoreMap={pesado:1,ansioso:2,frustrado:2,neutral:3,bien:4,muybien:5};
+  const PAD=30, W=canvas.width, H=canvas.height;
+  const colW=(W-PAD*2)/(days.length-1||1);
+
+  for(let i=1;i<=5;i++){
+    const y=H-PAD-(i-1)*(H-PAD*2)/4;
+    ctx.beginPath(); ctx.strokeStyle='#E2E8F0'; ctx.lineWidth=1;
+    ctx.moveTo(PAD,y); ctx.lineTo(W-PAD,y); ctx.stroke();
+  }
+
+  const pts=days.map((d,i)=>{
+    const s=sesiones.find(sess=>sess.fecha.startsWith(d));
+    const score=scoreMap[s?.emocionInicio||'neutral']||3;
+    return { x:PAD+i*colW, y:H-PAD-(score-1)*(H-PAD*2)/4 };
+  });
+
+  ctx.beginPath(); ctx.strokeStyle='#003B71'; ctx.lineWidth=2.5; ctx.lineJoin='round';
+  pts.forEach((p,i)=>{ i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y); });
+  ctx.stroke();
+
+  const grad=ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0,'rgba(0,119,200,0.18)'); grad.addColorStop(1,'rgba(0,119,200,0)');
+  ctx.beginPath();
+  pts.forEach((p,i)=>{ i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y); });
+  ctx.lineTo(pts[pts.length-1].x,H-PAD); ctx.lineTo(pts[0].x,H-PAD); ctx.closePath();
+  ctx.fillStyle=grad; ctx.fill();
+
+  pts.forEach((p,i)=>{
+    ctx.beginPath(); ctx.arc(p.x,p.y,4,0,2*Math.PI);
+    ctx.fillStyle='#005DA4'; ctx.fill();
+    ctx.fillStyle='#666'; ctx.font='10px Nunito'; ctx.textAlign='center';
+    ctx.fillText(days[i].slice(8),p.x,H-6);
+  });
+}
+
+document.getElementById('show-progress').addEventListener('click',()=>{ buildProgress(); showScreen('screen-progress'); });
+
+/* ============================================================
+   PANTALLA 5: LOGROS
+============================================================ */
+function buildAchievements(){
+  const user=getUserById(state.user?.id);
+  if(!user) return;
+  const sesiones=user.sesiones||[];
+  const streak=calcStreak(user.id);
+  const pts=user.puntos||0;
+  const list=document.getElementById('achievements-list');
+  list.innerHTML='';
+  LOGROS.forEach(l=>{
+    const unlocked=l.condicion(sesiones,streak,pts);
+    const div=document.createElement('div');
+    div.className='logro-item '+(unlocked?'unlocked':'locked');
+    div.innerHTML=`<span class="logro-icon">${l.icon}</span><div class="logro-info"><div class="logro-title">${l.title} ${unlocked?'✓':''}</div><div class="logro-desc">${l.desc}</div></div>`;
+    list.appendChild(div);
+  });
+
+  const finalCard=document.getElementById('final-video-card');
+  if(finalCard){ finalCard.style.display = (pts>=100 ? 'block' : 'none'); }
+}
+
+function checkLogros(user){
+  const sesiones=user.sesiones||[];
+  const streak=calcStreak(user.id);
+  const pts=user.puntos||0;
+  const yaDesbloqueados=new Set(user.logros||[]);
+  LOGROS.forEach(l=>{
+    if(!yaDesbloqueados.has(l.id)&&l.condicion(sesiones,streak,pts)){
+      user.logros=user.logros||[];
+      user.logros.push(l.id);
+      saveUser(user);
+      setTimeout(()=>toast('🏆 Logro: '+l.title),800);
+    }
+  });
+}
+
+document.getElementById('show-achievements').addEventListener('click',()=>{ buildAchievements(); showScreen('screen-achievements'); });
+
+/* ============================================================
+   PANTALLA 7: PANEL DOCENTE
+============================================================ */
+function buildTeacher(){
+  const data=getUsers();
+  const cfg=getConfig();
+  const isAdmin = state.mode==='administrador';
+  const isProfesor = state.mode==='profesor';
+
+  const modeFilter = document.getElementById('teacher-filter-mode')?.value || (isAdmin ? 'todos' : 'estudiantes');
+
+  const visibleUsers = data.usuarios.filter(u=>{
+    if(isAdmin){
+      if(modeFilter==='estudiantes') return u.rol==='estudiante';
+      if(modeFilter==='docentes') return u.rol==='profesor';
+      return u.rol==='estudiante' || u.rol==='profesor';
+    }
+    return u.rol==='estudiante';
+  });
+
+  const total = visibleUsers.length;
+  let sessions=0, inactivos=0, estudiantes=0, docentes=0, administradores=0;
+  const emotionCount={}, exCount={};
+  let allSesiones=[];
+
+  visibleUsers.forEach(u=>{
+    if(u.rol==='estudiante') estudiantes++;
+    else if(u.rol==='profesor') docentes++;
+    else if(u.rol==='administrador') administradores++;
+
+    sessions+=(u.sesiones?.length||0);
+    if(calcStreak(u.id)===0) inactivos++;
+    u.sesiones?.forEach(s=>{
+      allSesiones.push(s);
+      emotionCount[s.emocionInicio]=(emotionCount[s.emocionInicio]||0)+1;
+      s.ejerciciosCompletados?.forEach(e=>{ exCount[e.tipo]=(exCount[e.tipo]||0)+1; });
+    });
+  });
+
+  const topEm=Object.entries(emotionCount).sort((a,b)=>b[1]-a[1])[0]?.[0]||'—';
+  const topEx=Object.entries(exCount).sort((a,b)=>b[1]-a[1])[0]?.[0]||'—';
+  const exObj=EXERCISES.find(e=>e.id===topEx);
+  const totalModulosGrupo=allSesiones.filter(s=>s.modulo).length;
+
+  const titleText = state.mode==='administrador' ? 'Panel Administrador' : 'Panel Docente';
+  const subtitleText = state.mode==='administrador' ? 'Control y estadísticas globales' : 'Seguimiento grupal ACTiva Arte';
+  document.querySelector('#screen-teacher .banner-title').textContent = titleText;
+  document.querySelector('#screen-teacher .banner-sub').textContent = subtitleText;
+
+  const panelLabel = isAdmin ? 'Administrador' : 'Docente';
+  const targetLabel = isAdmin ? 'docentes y estudiantes' : 'estudiantes';
+
+  const visibleLabel = isAdmin
+    ? modeFilter==='todos' ? 'Docentes + Estudiantes' : modeFilter==='docentes' ? 'Docentes' : 'Estudiantes'
+    : 'Estudiantes';
+
+  document.getElementById('teacher-summary').innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+      <div>
+        <h3 style="font-size:15px;margin:0;color:var(--unad-azul-oscuro);">📊 Resumen ${panelLabel} — ${cfg.grupoNombre}</h3>
+        <small style="font-size:12px;color:var(--texto-sec);">Datos de ${visibleLabel}. Actualizado: ${new Date().toLocaleTimeString()}</small>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        ${isAdmin ? `<select id="teacher-filter-mode" style="min-width:170px;padding:8px 10px;border-radius:var(--radius-sm);border:1px solid #cfd8e5;">
+          <option value="todos" ${modeFilter==='todos'?'selected':''}>Todos (docentes + estudiantes)</option>
+          <option value="estudiantes" ${modeFilter==='estudiantes'?'selected':''}>Estudiantes</option>
+          <option value="docentes" ${modeFilter==='docentes'?'selected':''}>Docentes</option>
+        </select>` : ''}
+        <button class="btn btn-sm btn-ghost" id="teacher-refresh" style="min-width:130px;">🔄 Refrescar</button>
+      </div>
+    </div>
+    <div class="grid-3" style="gap:10px;margin-bottom:12px;">
+      <div class="stat-chip" title="Usuarios que el panel está mostrando actualmente"><span class="stat-val">${visibleUsers.length}</span><span class="stat-lbl">Usuarios monitorizados</span></div>
+      <div class="stat-chip" title="Total de estudiantes incluidos"><span class="stat-val">${estudiantes}</span><span class="stat-lbl">Estudiantes</span></div>
+      <div class="stat-chip" title="Total de docentes incluidos"><span class="stat-val">${docentes}</span><span class="stat-lbl">Docentes</span></div>
+      <div class="stat-chip" title="Sesiones registradas en este grupo"><span class="stat-val">${sessions}</span><span class="stat-lbl">Sesiones totales</span></div>
+      <div class="stat-chip" title="Usuarios sin sesión reciente"><span class="stat-val">${inactivos}</span><span class="stat-lbl">Inactivos</span></div>
+      <div class="stat-chip" title="Cantidad de reflexiones completadas"><span class="stat-val">${totalModulosGrupo}</span><span class="stat-lbl">Reflexiones avaladas</span></div>
+    </div>
+    <div class="grid-2" style="gap:10px;margin-bottom:10px;">
+      <div class="stat-chip"><span class="stat-val">${exObj?exObj.icon:'—'}</span><span class="stat-lbl">Ej. más usado</span></div>
+      <div class="stat-chip"><span class="stat-val">${EMOTIONS.find(e=>e.id===topEm)?.icon||topEm}</span><span class="stat-lbl">Emoción más registrada</span></div>
+    </div>
+    <div style="font-size:12px;color:var(--texto-sec);">Modo actual: <strong>${panelLabel}</strong> · Registrado: <strong>${new Date().toLocaleString()}</strong></div>
+  `;
+
+  const filterSelect = document.getElementById('teacher-filter-mode');
+  if(filterSelect){
+    filterSelect.addEventListener('change', ()=>{ buildTeacher(); });
+  }
+  const refreshBtn = document.getElementById('teacher-refresh');
+  if(refreshBtn){
+    refreshBtn.addEventListener('click', ()=>{ buildTeacher(); });
+  }
+
+  // Historial emocional del grupo
+  buildEmotionHistory('teacher-emotion-history', allSesiones);
+
+  // Tabla usuarios
+  const tbody=document.getElementById('teacher-students');
+  tbody.innerHTML='';
+  const filterSel=document.getElementById('filter-student');
+  filterSel.innerHTML='<option value="">Todos</option>';
+  visibleUsers.forEach(u=>{
+    const tr=document.createElement('tr');
+    const ultima=u.sesiones?.slice(-1)[0]?.fecha?.split('T')[0]||'—';
+    const rolLabel={'estudiante':'👤','profesor':'👩‍🏫','administrador':'🛠️'}[u.rol]||'👤';
+    tr.innerHTML=`<td>${u.nombre}</td><td>${rolLabel} ${u.rol||'est.'}</td><td>${u.sesiones?.length||0}</td><td>${calcStreak(u.id)} 🔥</td><td>${ultima}</td>`;
+    tbody.appendChild(tr);
+    const opt=document.createElement('option'); opt.value=u.id; opt.textContent=u.nombre;
+    filterSel.appendChild(opt);
+  });
+
+  // Patrones
+  const patternList=document.getElementById('pattern-list');
+  patternList.innerHTML=`
+    <li>⚠️ ${inactivos} usuario(s) sin actividad en los últimos 7 días</li>
+    <li>📚 ${total} usuario(s) registrados en total</li>
+    <li>🎯 Ejercicio más completado: ${exObj?exObj.icon+' '+exObj.title:topEx}</li>
+    <li>✍️ ${totalModulosGrupo} reflexiones escritas en total</li>
+    <li>😰 Ansiedad registrada: ${emotionCount['ansioso']||0} veces este mes</li>`;
+
+  renderGallery('','');
+
+  document.getElementById('filter-student').onchange = function(){
+    renderGallery(document.getElementById('filter-student').value,document.getElementById('filter-exercise').value);
+  };
+  document.getElementById('filter-exercise').onchange = function(){
+    renderGallery(document.getElementById('filter-student').value,document.getElementById('filter-exercise').value);
+  };
+}
+
+function renderGallery(filterUid, filterEx){
+  const data=getUsers();
+  const gallery=document.getElementById('teacher-gallery');
+  gallery.innerHTML='';
+  let entries=[];
+
+  data.usuarios.forEach(u=>{
+    if(filterUid&&u.id!==filterUid) return;
+    (u.sesiones||[]).forEach(s=>{
+      (s.ejerciciosCompletados||[]).forEach(ex=>{
+        if(filterEx&&filterEx!=='modulo'&&ex.tipo!==filterEx) return;
+        entries.push({ nombre:u.nombre, ex, fecha:s.fecha, tipo:'ejercicio' });
+      });
+      if(s.modulo&&(!filterEx||filterEx==='modulo')){
+        entries.push({ nombre:u.nombre, ex:{tipo:'modulo',titulo:s.modulo.titulo,reflexionTexto:s.modulo.texto,imagenBase64:s.modulo.imagenBase64,puntuacion:null}, fecha:s.fecha, tipo:'modulo' });
+      }
+    });
+  });
+
+  if(!entries.length){
+    gallery.innerHTML='<p style="font-size:13px;color:var(--texto-sec);text-align:center;padding:20px;">Sin registros encontrados.</p>';
+    return;
+  }
+
+  entries.slice().reverse().forEach(({nombre,ex,fecha,tipo})=>{
+    const div=document.createElement('div');
+    div.className='gallery-item';
+    const exObj=tipo==='modulo'?{icon:'✍️',title:'Módulo Reflexión'}:EXERCISES.find(e=>e.id===ex.tipo);
+    if(ex.imagenBase64){
+      div.innerHTML=`<img src="${ex.imagenBase64}" alt="Trabajo de ${nombre}" loading="lazy">
+        <div class="gal-info"><div class="gal-name">${nombre}</div><div>${exObj?.icon||''} ${exObj?.title||ex.tipo}</div><div style="color:var(--texto-sec);">${fecha.split('T')[0]}</div></div>`;
+      div.querySelector('img').addEventListener('click',()=>{
+        openModal(nombre+' — '+exObj?.title, ex.reflexionTexto||'Sin reflexión', ex.imagenBase64);
+      });
+    } else {
+      div.innerHTML=`<div style="padding:14px;background:var(--crema);min-height:80px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;">${exObj?.icon||'📝'}</div>
+        <div class="gal-info"><div class="gal-name">${nombre}</div><div>${exObj?.title||ex.tipo}</div><div style="color:var(--texto-sec);font-size:11px;">${ex.reflexionTexto?.slice(0,60)||'—'}</div></div>`;
+    }
+    gallery.appendChild(div);
+  });
+}
+
+/* ============================================================
+   EXPORTAR DATOS
+============================================================ */
+document.getElementById('export-data').addEventListener('click',()=>{
+  const data=JSON.stringify(getUsers(),null,2);
+  const blob=new Blob([data],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download='activa-arte-datos-'+new Date().toISOString().slice(0,10)+'.json'; a.click();
+  toast('📥 Datos exportados como JSON');
+});
+
+document.getElementById('export-html').addEventListener('click',()=>{
+  const data=getUsers();
+  const cfg=getConfig();
+  let html=`<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Reporte ACTiva Arte</title>
+  <style>body{font-family:Arial,sans-serif;max-width:900px;margin:40px auto;padding:20px;color:#1A1A2E;}
+  h1{color:#003B71;border-bottom:3px solid #F2A900;padding-bottom:8px;}h2{color:#005DA4;margin-top:30px;}
+  table{width:100%;border-collapse:collapse;margin:12px 0;}th{background:#003B71;color:#fff;padding:8px;}
+  td{border:1px solid #ddd;padding:8px;}img{max-width:200px;border-radius:8px;}
+  .entry{border:1px solid #ddd;border-radius:8px;padding:16px;margin:12px 0;}
+  .badge{background:#5B9E3A;color:#fff;border-radius:999px;padding:2px 10px;font-size:12px;}
+  .em-bar{display:inline-block;width:120px;background:#e0e0e0;border-radius:4px;height:12px;vertical-align:middle;}
+  .em-fill{height:100%;background:#003B71;border-radius:4px;}</style></head><body>
+  <h1>📊 Reporte ACTiva Arte — UNAD</h1>
+  <p><strong>Grupo:</strong> ${cfg.grupoNombre} | <strong>Docente:</strong> ${cfg.nombreDocente} | <strong>Fecha:</strong> ${new Date().toLocaleDateString('es-CO')}</p>
+  <h2>👥 Resumen de Usuarios</h2>
+  <table><thead><tr><th>Nombre</th><th>Rol</th><th>Sesiones</th><th>Racha</th><th>Imágenes</th><th>Reflexiones</th><th>Puntos</th></tr></thead><tbody>`;
+
+  data.usuarios.forEach(u=>{
+    html+=`<tr><td>${u.nombre}</td><td>${u.rol||'estudiante'}</td><td>${u.sesiones?.length||0}</td><td>${calcStreak(u.id)}</td><td>${totalImgs(u.sesiones||[])}</td><td>${totalModulos(u.sesiones||[])}</td><td>${u.puntos||0}</td></tr>`;
+  });
+  html+=`</tbody></table><h2>🧠 Emociones por Usuario (últimos 30 días)</h2>`;
+
+  data.usuarios.forEach(u=>{
+    const count=countEmotionsLastDays(u.sesiones||[],30);
+    const total=Object.values(count).reduce((a,b)=>a+b,0)||1;
+    html+=`<p><strong>${u.nombre}</strong></p><p style="font-size:13px;">`;
+    EMOTIONS.forEach(em=>{ const n=count[em.id]||0; if(n>0) html+=`${em.icon} ${em.label}: ${n}x &nbsp; `; });
+    html+=`</p>`;
+  });
+
+  html+=`<h2>✍️ Reflexiones del Módulo</h2>`;
+  data.usuarios.forEach(u=>{
+    (u.sesiones||[]).filter(s=>s.modulo).forEach(s=>{
+      html+=`<div class="entry"><strong>${u.nombre}</strong> — <span class="badge">Módulo Reflexión</span> — ${s.fecha.split('T')[0]}<br>
+        <p style="margin:6px 0;font-weight:700;">${s.modulo.titulo}</p>
+        <p style="font-style:italic;font-size:13px;">"${s.modulo.texto}"</p>
+        ${s.modulo.imagenBase64?`<img src="${s.modulo.imagenBase64}" alt="Imagen módulo">`:''}
+        <p style="font-size:12px;color:#666;">Estado al terminar: ${s.modulo.animo}</p></div>`;
+    });
+  });
+
+  html+=`<h2>🖼️ Banco de Ejercicios e Imágenes</h2>`;
+  data.usuarios.forEach(u=>{
+    (u.sesiones||[]).forEach(s=>{
+      (s.ejerciciosCompletados||[]).forEach(ex=>{
+        const exObj=EXERCISES.find(e=>e.id===ex.tipo);
+        html+=`<div class="entry"><strong>${u.nombre}</strong> — <span class="badge">${exObj?.title||ex.tipo}</span> — ${s.fecha.split('T')[0]}<br>`;
+        if(ex.reflexionTexto) html+=`<p style="font-style:italic;font-size:13px;">"${ex.reflexionTexto}"</p>`;
+        if(ex.imagenBase64) html+=`<img src="${ex.imagenBase64}" alt="Trabajo de ${u.nombre}">`;
+        if(ex.puntuacion) html+=`<p style="font-size:12px;color:#666;">Autoevaluación: ${ex.puntuacion}/10</p>`;
+        html+=`</div>`;
+      });
+    });
+  });
+
+  html+=`</body></html>`;
+  const blob=new Blob([html],{type:'text/html'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='ACTiva_Arte_Reporte_'+new Date().toISOString().slice(0,10)+'.html';
+  a.click();
+  toast('📄 Reporte HTML exportado');
+});
+
+document.getElementById('export-teacher-excel').addEventListener('click',()=>{
+  const data=getUsers();
+  let csv='Nombre,Rol,Sesiones,Racha,Imágenes,Reflexiones,Puntos\n';
+  data.usuarios.forEach(u=>{
+    csv+=`"${u.nombre.replace(/"/g,'""')}",${u.rol||'estudiante'},${u.sesiones?.length||0},${calcStreak(u.id)},${totalImgs(u.sesiones||[])},${totalModulos(u.sesiones||[])},${u.puntos||0}\n`;
+  });
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='ACTiva_Arte_Reporte_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
+  toast('📊 Reporte Excel (CSV) exportado');
+});
+
+document.getElementById('change-pin').addEventListener('click',()=>{
+  const role = prompt('¿Qué PIN deseas actualizar? (docente / administrador):');
+  if(!role) return;
+  const normalized = role.trim().toLowerCase();
+  if(normalized!=='docente' && normalized!=='administrador'){
+    openModal('Rol inválido','Ingresa "docente" o "administrador".');
+    return;
+  }
+  const newPin=prompt('Ingresa el nuevo PIN para '+normalized+':');
+  if(!newPin||newPin.trim().length<4){ openModal('PIN inválido','El PIN debe tener al menos 4 caracteres.'); return; }
+  const cfg=getConfig();
+  if(normalized==='docente') cfg.pinDocente=newPin.trim();
+  else cfg.pinAdministrador=newPin.trim();
+  setConfig(cfg);
+  toast('🔑 PIN ' + (normalized==='docente' ? 'docente' : 'administrador') + ' actualizado');
+});
+
+/* ============================================================
+   CERRAR SESIÓN
+============================================================ */
+function resetToRoleSelection(){
+  state={ mode:null, rol:null, user:null, emotion:null, sessionId:null, activeExercise:null, points:0, selectedValues:[] };
+  selectedRole=null;
+  saveState();
+  document.getElementById('btn-validate').disabled=true;
+  document.getElementById('btn-continue-role').disabled=true;
+  document.querySelectorAll('.role-card').forEach(c=>c.classList.remove('selected'));
+  showScreen('screen-mode');
+}
+
+document.getElementById('btn-change-role').addEventListener('click',resetToRoleSelection);
+
+document.getElementById('btn-logout').addEventListener('click',resetToRoleSelection);
+
+/* ============================================================
+   MODAL
+============================================================ */
+document.getElementById('close-modal').addEventListener('click', closeModal);
+document.getElementById('modal-ok').addEventListener('click', closeModal);
+document.getElementById('modal-overlay').addEventListener('click',e=>{
+  if(e.target===document.getElementById('modal-overlay')) closeModal();
+});
+document.getElementById('modal-close-btn')?.addEventListener('click', closeModal);
+
+/* ============================================================
+   SERVICE WORKER
+============================================================ */
+function registerSW(){
+  if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+
+/* ============================================================
+   INIT
+============================================================ */
+function init(){
+  try {
+    // Cerrar cualquier modal que pudiera haber quedado abierto
+    const overlay = document.getElementById('modal-overlay');
+    if(overlay){
+      overlay.classList.remove('show');
+      overlay.style.display = 'none';
+      overlay.style.pointerEvents = 'none';
+    }
+
+    loadState();
+    updateHeaderPoints();
+    if(state.mode==='estudiante'&&state.user){
+      buildCheckin(); showScreen('screen-checkin');
+    } else {
+      showScreen('screen-mode');
+    }
+
+    // Cerrar modal con ESC
+    document.addEventListener('keydown', (e) => {
+      const ov = document.getElementById('modal-overlay');
+      if(e.key==='Escape' && ov && ov.classList.contains('show')) closeModal();
+    });
+
+    // Event delegation en capture phase para role-cards
+    document.addEventListener('click', (e) => {
+      const roleCard = e.target.closest('.role-card');
+      if(roleCard && roleCard.dataset.role) {
+        e.stopPropagation();
+        const role = roleCard.dataset.role;
+        selectRole(role);
+      }
+    }, true);
+
+    registerSW();
+
+  } catch(e) {
+    console.error('INIT ERROR:', e.message, e);
+  }
+}
+
+// init() is called by boot() below
+
+/* ════════ SYNC + SERVIDOR ════════ */
+/* ════════════════ SYNC ENGINE ════════════════ */
+const SYNC_KEY='activa_sync_q_v1', GAS_URL_KEY='activa_gas_url_v1', SRV_KEY='activa_srv_v1', APP_VER='ACTiva Arte v5';
+let _syncing=false, _online=navigator.onLine;
+const gQ=()=>{try{return JSON.parse(localStorage.getItem(SYNC_KEY)||'[]')}catch{return[]}};
+const sQ=a=>localStorage.setItem(SYNC_KEY,JSON.stringify(a));
+const gURL=()=>(localStorage.getItem(GAS_URL_KEY)||'').trim();
+const addQ=uid=>{const q=gQ();if(!q.includes(uid))q.push(uid);sQ(q);updSync()};
+const clrQ=()=>{sQ([]);updSync()};
+
+window.addEventListener('online', ()=>{_online=true;connBar('online','🌐 Conexión restaurada');updSync();setTimeout(hideBar,4000);if(gQ().length&&gURL())setTimeout(autoSync,1500)});
+window.addEventListener('offline',()=>{_online=false;connBar('offline','📴 Sin conexión — modo offline');updSync()});
+
+function connBar(t,m){const b=document.getElementById('conn-bar');if(!b)return;b.className='show '+t;document.getElementById('conn-msg').textContent=m}
+function hideBar(){const b=document.getElementById('conn-bar');if(b)b.classList.remove('show')}
+
+function updSync(){
+  const p=gQ().length,u=gURL();
+  const chip=document.getElementById('sync-chip');
+  const desc=document.getElementById('sync-desc');
+  const btn=document.getElementById('btn-sync');
+  const lbl=document.getElementById('lbl-sync');
+  const urlL=document.getElementById('srv-url-lbl');
+  const pb=document.getElementById('pending-badge');
+  if(chip){
+    if(_online&&u){chip.textContent=p>0?'⬤ '+p+' pendiente'+(p>1?'s':''):'✓ Sincronizado';chip.style.cssText=p>0?'margin-left:auto;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;background:rgba(242,169,0,.3);color:#F2A900':'margin-left:auto;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;background:rgba(39,174,96,.3);color:#56d364'}
+    else if(_online){chip.textContent='⬤ Online';chip.style.cssText='margin-left:auto;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;background:rgba(88,166,255,.2);color:#58a6ff'}
+    else{chip.textContent='⬤ Offline';chip.style.cssText='margin-left:auto;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;background:rgba(229,62,62,.2);color:#ff7b72'}
+  }
+  if(desc){
+    if(_online&&u&&p)desc.textContent='Tienes '+p+' sesión(es) sin sincronizar. Pulsa el botón verde.';
+    else if(_online&&u)desc.textContent='Todos tus datos están sincronizados con el servidor. ✓';
+    else if(_online)desc.textContent='Conectado sin servidor. Exporta el JSON para entregárselo al docente.';
+    else desc.textContent='Sin internet. Tus datos están guardados. Exporta el JSON cuando tengas señal.';
+  }
+  if(btn){if(_online&&u){btn.style.display='flex';btn.disabled=p===0;btn.style.opacity=p?'1':'0.5';if(lbl)lbl.textContent=p?'Sincronizar ahora ('+p+' pend.)':'Ya sincronizado ✓'}else btn.style.display='none'}
+  if(urlL)urlL.textContent=u?'Servidor: '+u.slice(0,40)+(u.length>40?'…':''):'Sin servidor configurado';
+  if(pb){pb.textContent=p;p>0?pb.style.display='flex':pb.style.display='none'}
+}
+
+function doManualSync(){if(!gURL()){changeServerUrl();return}if(!gQ().length){toast('✓ Sin datos pendientes');return}autoSync()}
+
+async function autoSync(){
+  if(_syncing||!_online)return;const url=gURL();if(!url)return;const pend=gQ();if(!pend.length)return;
+  _syncing=true;connBar('syncing','🔄 Sincronizando…');
+  try{
+    const toSync=getUsers().usuarios.filter(u=>pend.includes(u.id));
+    const r=await fetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'syncUsers',source:'auto',version:APP_VER,timestamp:new Date().toISOString(),payload:{usuarios:toSync}}),mode:'cors',signal:AbortSignal.timeout(15000)});
+    if(r.ok){clrQ();connBar('online','✅ Datos sincronizados');toast('☁️ Sincronizado');setTimeout(hideBar,3500)}
+    else connBar('offline','⚠️ Error '+r.status);
+  }catch(e){if(e.name!=='AbortError')connBar('offline','📴 Sin conexión')}
+  finally{_syncing=false;updSync()}
+}
+
+function downloadApp(){const blob=new Blob([document.documentElement.outerHTML],{type:'text/html;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ACTivaArte_UNAD_offline.html';a.click();URL.revokeObjectURL(a.href);toast('💾 App descargada')}
+
+function exportMyJson(){
+  const user=getUserById(state.user?.id);if(!user){toast('⚠️ Inicia sesión primero');return}
+  const exp={exportado_por:user.nombre,version:APP_VER,fecha_exportacion:new Date().toISOString(),usuarios:[user]};
+  const blob=new Blob([JSON.stringify(exp,null,2)],{type:'application/json'});const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download='ACTivaArte_'+user.nombre.replace(/\s+/g,'_')+'_'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();URL.revokeObjectURL(a.href);toast('📤 JSON exportado')
+}
+
+function changeServerUrl(){const c=gURL();const u=prompt('URL del servidor (Google Apps Script):',c);if(u===null)return;localStorage.setItem(GAS_URL_KEY,u.trim());updSync();toast(u.trim()?'🔗 Servidor configurado':'Sin servidor')}
+
+(function(){const _o=window.saveUser;window.saveUser=function(user){_o(user);if(user&&user.id)addQ(user.id)}})();
+
+/* ════════════════ MODO SERVIDOR ════════════════ */
+const IS_SRV=new URLSearchParams(location.search).get('mode')==='server';
+let srvD={usuarios:[],n:0};
+const saveSrv=()=>{try{localStorage.setItem(SRV_KEY,JSON.stringify(srvD))}catch{}};
+const loadSrv=()=>{try{const d=JSON.parse(localStorage.getItem(SRV_KEY)||'{}');srvD={usuarios:d.usuarios||[],n:d.n||0}}catch{srvD={usuarios:[],n:0}}};
+
+function srvMerge(u){
+  const idx=srvD.usuarios.findIndex(x=>x.id===u.id||x.nombre.toLowerCase().trim()===u.nombre.toLowerCase().trim());
+  if(idx===-1){srvD.usuarios.push(u);return{nuevo:true,ses:(u.sesiones||[]).length}}
+  const ex=srvD.usuarios[idx];const sids=new Set((ex.sesiones||[]).map(s=>s.id));let ns=0;
+  (u.sesiones||[]).forEach(s=>{if(!sids.has(s.id)){(ex.sesiones=ex.sesiones||[]).push(s);ns++}});
+  ex.puntos=Math.max(ex.puntos||0,u.puntos||0);
+  const ll=new Set(ex.logros||[]);(u.logros||[]).forEach(l=>ll.add(l));ex.logros=[...ll];
+  srvD.usuarios[idx]=ex;return{nuevo:false,ses:ns}
+}
+
+function srvFile(file){
+  return new Promise((res,rej)=>{
+    const r=new FileReader();r.onload=e=>{
+      try{const p=JSON.parse(e.target.result);if(!p.usuarios||!Array.isArray(p.usuarios))throw new Error('Falta "usuarios"');
+        let nu=0,na=0,ns=0;p.usuarios.forEach(u=>{const x=srvMerge(u);if(x){if(x.nuevo)nu++;else na++;ns+=x.ses}});
+        srvD.n++;saveSrv();res({file:file.name,nu,na,ns})
+      }catch(err){rej({file:file.name,err:err.message})}
+    };r.onerror=()=>rej({file:file.name,err:'Error lectura'});r.readAsText(file,'utf-8')
+  })
+}
+
+async function srvLoad(files){
+  const st=document.getElementById('srv-load-st');if(st)st.innerHTML='<div class="srv-alert info">🔄 Procesando '+files.length+' archivo(s)…</div>';
+  const res=await Promise.allSettled([...files].filter(f=>f.name.endsWith('.json')||f.type==='application/json').map(f=>srvFile(f)));
+  const ok=res.filter(r=>r.status==='fulfilled').map(r=>r.value);
+  const er=res.filter(r=>r.status==='rejected').map(r=>r.reason);
+  let html='';
+  if(ok.length){const tn=ok.reduce((a,r)=>a+r.nu,0),ta=ok.reduce((a,r)=>a+r.na,0),ts=ok.reduce((a,r)=>a+r.ns,0);html+=`<div class="srv-alert ok">✅ ${ok.length} archivo(s) · ${tn} nuevo(s) · ${ta} actualizado(s) · ${ts} sesión(es)</div>`}
+  er.forEach(e=>{html+=`<div class="srv-alert err">❌ ${e.file}: ${e.err}</div>`});
+  if(st)st.innerHTML=html;srvRender()
+}
+
+function srvRender(){
+  const allS=srvD.usuarios.flatMap(u=>u.sesiones||[]);
+  const allE=allS.flatMap(s=>s.ejerciciosCompletados||[]);
+  const allR=allS.filter(s=>s.modulo);
+  const allI=allE.filter(e=>e.imagenBase64);
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v};
+  set('sv-u',srvD.usuarios.length);set('sv-s',allS.length);set('sv-e',allE.length);
+  set('sv-r',allR.length);set('sv-i',allI.length);set('sv-j',srvD.n);
+  set('srv-sc','('+srvD.usuarios.length+')');set('srv-rc','('+allR.length+')');set('srv-ic','('+allI.length+')');
+
+  const tb=document.getElementById('srv-tbody');
+  if(tb){if(!srvD.usuarios.length)tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:#8b949e;padding:24px">Carga un JSON para ver datos</td></tr>';
+  else{tb.innerHTML='';srvD.usuarios.forEach(u=>{const ses=u.sesiones||[],ej=ses.flatMap(s=>s.ejerciciosCompletados||[]),ref=ses.filter(s=>s.modulo),imgs=ej.filter(e=>e.imagenBase64),ul=ses.slice(-1)[0]?.fecha?.split('T')[0]||'—';const tr=document.createElement('tr');tr.innerHTML=`<td style="font-weight:700">${u.nombre}</td><td>${ses.length}</td><td>${ej.length}</td><td>${ref.length}</td><td>${imgs.length}</td><td>${u.puntos||0}</td><td style="color:#8b949e">${ul}</td>`;tb.appendChild(tr)})}}
+
+  const eg=document.getElementById('srv-em');
+  if(eg){const cut=new Date();cut.setDate(cut.getDate()-30);const cnt={};EMOTIONS.forEach(e=>{cnt[e.id]=0});allS.forEach(s=>{if(new Date(s.fecha)>=cut&&s.emocionInicio)cnt[s.emocionInicio]=(cnt[s.emocionInicio]||0)+1});eg.innerHTML='';EMOTIONS.forEach(em=>{const d=document.createElement('div');d.className='em-history-pill';d.style.cssText='background:rgba(255,255,255,.05)';d.innerHTML=`<span class="em-h-icon">${em.icon}</span><span class="em-h-name" style="color:#8b949e">${em.label}</span><span class="em-h-count" style="color:#58a6ff">${cnt[em.id]||0}x</span>`;eg.appendChild(d)})}
+
+  const rl=document.getElementById('srv-refs');
+  if(rl){if(!allR.length)rl.innerHTML='<p style="color:#8b949e;font-size:13px">Sin reflexiones.</p>';
+  else{rl.innerHTML='';const ents=[];srvD.usuarios.forEach(u=>{(u.sesiones||[]).filter(s=>s.modulo).forEach(s=>ents.push({n:u.nombre,m:s.modulo,f:s.fecha}))});ents.sort((a,b)=>b.f.localeCompare(a.f)).slice(0,20).forEach(({n,m,f})=>{const d=document.createElement('div');d.style.cssText='padding:14px;background:rgba(255,255,255,.03);border:1px solid #30363d;border-radius:8px;margin-bottom:10px';d.innerHTML=`<div style="display:flex;justify-content:space-between;margin-bottom:4px"><strong style="color:#e6edf3">${n}</strong><span style="font-size:11px;color:#8b949e">${f.split('T')[0]}</span></div><div style="font-size:13px;font-weight:700;color:#58a6ff;margin-bottom:4px">${m.titulo}</div><div style="font-size:13px;color:#8b949e;font-style:italic">"${m.texto.slice(0,150)}${m.texto.length>150?'…':''}"</div>`;rl.appendChild(d)})}}
+
+  const gl=document.getElementById('srv-gal');
+  if(gl){const imgs=[];srvD.usuarios.forEach(u=>{(u.sesiones||[]).forEach(s=>{(s.ejerciciosCompletados||[]).filter(ex=>ex.imagenBase64).forEach(ex=>{imgs.push({n:u.nombre,ex,f:s.fecha})})})});if(!imgs.length)gl.innerHTML='<p style="color:#8b949e;font-size:13px">Sin imágenes.</p>';
+  else{gl.innerHTML='';imgs.reverse().slice(0,30).forEach(({n,ex,f})=>{const xo=EXERCISES.find(e=>e.id===ex.tipo);const d=document.createElement('div');d.className='srv-gi';d.innerHTML=`<img src="${ex.imagenBase64}" alt="${n}" loading="lazy"><div class="gi"><div class="gin">${n}</div><div>${xo?.icon||'📝'} ${xo?.title||ex.tipo}</div></div>`;d.querySelector('img').onclick=()=>openModal(n,ex.reflexionTexto||'Sin reflexión',ex.imagenBase64);gl.appendChild(d)})}}
+}
+
+function checkSrvPin(){
+  const pin=document.getElementById('srv-pin').value.trim();
+  const cfg=getConfig();
+  const pinDoc=cfg.pinDocente||DEFAULT_PIN_DOCENTE;
+  const pinAdm=cfg.pinAdministrador||DEFAULT_PIN_ADMIN;
+  const ok = pin===pinDoc || pin===pinAdm;
+  const isAdm = pin===pinAdm;
+  if(ok){
+    document.getElementById('srv-pin-wrap').style.display='none';
+    document.getElementById('srv-panel').style.display='block';
+    const tag=document.getElementById('srv-role-tag');
+    if(tag)tag.textContent='— '+(isAdm?'Administrador':'Docente');
+    loadSrv();srvRender();
+  }else{
+    const e=document.getElementById('srv-pin-err');
+    if(e){e.style.display='block';setTimeout(()=>e.style.display='none',2800)}
+    document.getElementById('srv-pin').value='';
+  }
+}
+document.getElementById('srv-pin')?.addEventListener('keydown',e=>{if(e.key==='Enter')checkSrvPin()});
+
+/* Wire local panel file input (Docente/Admin inside student app) */
+(function(){
+  const lfi=document.getElementById('local-file-in');
+  const ldz=document.getElementById('local-dz');
+  async function localLoad(files){
+    const st=document.getElementById('local-load-st');
+    if(st)st.innerHTML='<div style="background:rgba(88,166,255,.12);border:1px solid rgba(88,166,255,.3);border-radius:8px;padding:10px 14px;font-size:13px;color:#58a6ff;margin-top:8px">🔄 Procesando '+files.length+' archivo(s)…</div>';
+    let nu=0,na=0,ns=0,errs=[];
+    for(const file of [...files].filter(f=>f.name.endsWith('.json')||f.type==='application/json')){
+      await new Promise(res=>{
+        const r=new FileReader();
+        r.onload=e=>{
+          try{
+            const p=JSON.parse(e.target.result);
+            if(!p.usuarios||!Array.isArray(p.usuarios))throw new Error('Falta "usuarios"');
+            p.usuarios.forEach(inc=>{
+              const d=getUsers();
+              const idx=d.usuarios.findIndex(u=>u.id===inc.id||u.nombre.toLowerCase().trim()===inc.nombre.toLowerCase().trim());
+              if(idx===-1){d.usuarios.push(inc);setUsers(d);nu++;}
+              else{
+                const ex=d.usuarios[idx];
+                const sids=new Set((ex.sesiones||[]).map(s=>s.id));let added=0;
+                (inc.sesiones||[]).forEach(s=>{if(!sids.has(s.id)){(ex.sesiones=ex.sesiones||[]).push(s);added++}});
+                ex.puntos=Math.max(ex.puntos||0,inc.puntos||0);
+                const ll=new Set(ex.logros||[]);(inc.logros||[]).forEach(l=>ll.add(l));ex.logros=[...ll];
+                d.usuarios[idx]=ex;setUsers(d);if(added>0){na++;ns+=added;}
+              }
+            });
+          }catch(err){errs.push(file.name+': '+err.message)}
+          res();
+        };
+        r.onerror=()=>{errs.push(file.name+': Error de lectura');res()};
+        r.readAsText(file,'utf-8');
+      });
+    }
+    let html='';
+    if(nu||na)html+=`<div style="background:rgba(35,134,54,.15);border:1px solid rgba(35,134,54,.3);border-radius:8px;padding:10px 14px;font-size:13px;color:#56d364;margin-top:8px">✅ ${[...files].length} archivo(s) procesado(s) · ${nu} usuario(s) nuevo(s) · ${na} actualizado(s) · ${ns} sesión(es) agregada(s)</div>`;
+    errs.forEach(e=>{html+=`<div style="background:rgba(248,81,73,.15);border:1px solid rgba(248,81,73,.3);border-radius:8px;padding:10px 14px;font-size:13px;color:#ff7b72;margin-top:6px">❌ ${e}</div>`});
+    if(st)st.innerHTML=html;
+    // Refresh teacher panel
+    if(typeof buildTeacher==='function')setTimeout(buildTeacher,300);
+    toast(nu+na>0?'✅ Datos importados correctamente':'⚠️ Sin datos nuevos importados');
+  }
+  if(lfi)lfi.addEventListener('change',()=>{if(lfi.files.length)localLoad(lfi.files)});
+  if(ldz){
+    ldz.addEventListener('dragover',e=>{e.preventDefault();ldz.style.borderColor='#F2A900';ldz.style.background='rgba(242,169,0,.06)'});
+    ldz.addEventListener('dragleave',()=>{ldz.style.borderColor='rgba(255,255,255,.2)';ldz.style.background='rgba(255,255,255,.03)'});
+    ldz.addEventListener('drop',e=>{e.preventDefault();ldz.style.borderColor='rgba(255,255,255,.2)';ldz.style.background='rgba(255,255,255,.03)';if(e.dataTransfer.files.length)localLoad(e.dataTransfer.files)});
+  }
+})();
+
+(function(){
+  const fi=document.getElementById('srv-file-in');
+  const dz=document.getElementById('srv-dz');
+  if(fi)fi.addEventListener('change',()=>{if(fi.files.length)srvLoad(fi.files)});
+  if(dz){
+    dz.addEventListener('dragover',e=>{e.preventDefault();dz.style.borderColor='#F2A900';dz.style.background='rgba(242,169,0,.06)'});
+    dz.addEventListener('dragleave',()=>{dz.style.borderColor='rgba(255,255,255,.2)';dz.style.background='rgba(255,255,255,.03)'});
+    dz.addEventListener('drop',e=>{e.preventDefault();dz.style.borderColor='rgba(255,255,255,.2)';dz.style.background='rgba(255,255,255,.03)';if(e.dataTransfer.files.length)srvLoad(e.dataTransfer.files)});
+  }
+})();
+
+document.getElementById('s-exp-html')?.addEventListener('click',()=>{
+  let h=`<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Reporte ACTiva Arte</title><style>body{font-family:Arial,sans-serif;max-width:960px;margin:40px auto;padding:24px;color:#1A1A2E}h1{color:#003B71;border-bottom:3px solid #F2A900;padding-bottom:8px}h2{color:#005DA4;margin-top:28px}table{width:100%;border-collapse:collapse}th{background:#003B71;color:#fff;padding:9px 12px;text-align:left}td{border:1px solid #ddd;padding:9px 12px}img{max-width:200px;border-radius:8px}.e{border:1px solid #ddd;border-radius:8px;padding:16px;margin:10px 0}</style></head><body><h1>📊 Reporte ACTiva Arte — UNAD</h1><p>Fecha: ${new Date().toLocaleString('es-CO')} · Estudiantes: ${srvD.usuarios.length}</p><h2>👥 Estudiantes</h2><table><thead><tr><th>Nombre</th><th>Sesiones</th><th>Ejercicios</th><th>Reflexiones</th><th>Puntos</th></tr></thead><tbody>`;
+  srvD.usuarios.forEach(u=>{const ses=u.sesiones||[];h+=`<tr><td><strong>${u.nombre}</strong></td><td>${ses.length}</td><td>${ses.flatMap(s=>s.ejerciciosCompletados||[]).length}</td><td>${ses.filter(s=>s.modulo).length}</td><td>${u.puntos||0}</td></tr>`});
+  h+=`</tbody></table><h2>✍️ Reflexiones</h2>`;
+  srvD.usuarios.forEach(u=>{(u.sesiones||[]).filter(s=>s.modulo).forEach(s=>{h+=`<div class="e"><strong>${u.nombre}</strong> — ${s.fecha.split('T')[0]}<p style="font-weight:700">${s.modulo.titulo}</p><p style="font-style:italic">"${s.modulo.texto}"</p>${s.modulo.imagenBase64?`<img src="${s.modulo.imagenBase64}">`:''}</div>`})});
+  h+=`</body></html>`;
+  const b=new Blob([h],{type:'text/html'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='Reporte_ACTivaArte_'+new Date().toISOString().slice(0,10)+'.html';a.click();URL.revokeObjectURL(a.href)
+});
+document.getElementById('s-exp-csv')?.addEventListener('click',()=>{
+  let c='Nombre,Sesiones,Ejercicios,Reflexiones,Imagenes,Puntos\n';
+  srvD.usuarios.forEach(u=>{const ses=u.sesiones||[],ej=ses.flatMap(s=>s.ejerciciosCompletados||[]),ref=ses.filter(s=>s.modulo),imgs=ej.filter(e=>e.imagenBase64);c+=`"${u.nombre.replace(/"/g,'""')}",${ses.length},${ej.length},${ref.length},${imgs.length},${u.puntos||0}\n`});
+  const b=new Blob([c],{type:'text/csv;charset=utf-8;'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='ACTivaArte_'+new Date().toISOString().slice(0,10)+'.csv';a.click();URL.revokeObjectURL(a.href)
+});
+document.getElementById('s-exp-json')?.addEventListener('click',()=>{
+  const b=new Blob([JSON.stringify({exportado:new Date().toISOString(),...srvD},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='ACTivaArte_datos_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href)
+});
+document.getElementById('s-clear')?.addEventListener('click',()=>{if(confirm('¿Borrar todos los datos compilados?')){srvD={usuarios:[],n:0};localStorage.removeItem(SRV_KEY);srvRender();const st=document.getElementById('srv-load-st');if(st)st.innerHTML='<div class="srv-alert warn">🗑 Datos borrados.</div>'}});
+
+/* ════════════════ INIT ════════════════ */
+(function boot(){
+  const srv=document.getElementById('server-mode');
+  const stu=document.getElementById('student-mode');
+  if(!srv||!stu){console.error('Root elements missing');return}
+  if(IS_SRV){srv.style.display='block';stu.style.display='none'}
+  else{
+    srv.style.display='none';stu.style.display='block';
+    init();
+    setTimeout(updSync,300);
+    if(!_online)setTimeout(()=>connBar('offline','📴 Sin conexión — modo offline'),900);
+    if(_online&&gQ().length&&gURL())setTimeout(autoSync,5000)
+  }
+})();
+
+
+</script>
+</body>
+</html>
