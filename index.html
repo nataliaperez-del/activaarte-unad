@@ -426,6 +426,13 @@
       outline-offset: 2px
     }
 
+    .btn:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+      filter: none !important;
+      transform: none !important;
+    }
+
     .btn-primary {
       background: var(--azul-c);
       color: #fff
@@ -3163,6 +3170,7 @@
           <span class="stu-logo-name">ACTiva Arte</span>
         </div>
         <div class="stu-header-actions">
+          <span id="header-conn-dot" title="Estado de conexión" style="width:9px;height:9px;border-radius:50%;display:inline-block;background:#6ee7b7;box-shadow:0 0 0 2px rgba(110,231,183,.35);flex-shrink:0;transition:background .3s"></span>
           <button class="stu-role-btn" id="btn-change-role">↩ Cambiar rol</button>
           <div style="position:relative">
             <span class="stu-pts" id="header-points">0 pts</span>
@@ -3218,20 +3226,21 @@
       </div>
     </div>
 
-    <!-- Botón descarga offline -->
-    <button
-      class="btn-offline-download"
-      type="button"
-      onclick="downloadApp()">
-      💾 Descargar Entorno Offline
-    </button>
-
     <button
       class="btn btn-primary"
       id="btn-continue-role"
       disabled
       style="margin-top:8px">
       Continuar →
+    </button>
+
+    <!-- Botón descarga offline -->
+    <button
+      class="btn-offline-download"
+      type="button"
+      style="margin-top:10px"
+      onclick="downloadApp()">
+      💾 Descargar Entorno Offline
     </button>
 
     <p style="text-align:center;font-size:12px;color:var(--txt2);margin-top:14px">
@@ -3669,6 +3678,21 @@
       </div>
     </div>
 
+
+    <!-- MODAL PIN DOCENTE/ADMIN -->
+    <div id="pin-modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1100;align-items:center;justify-content:center;padding:20px">
+      <div style="background:var(--blanco);border-radius:var(--r);padding:28px 24px;max-width:360px;width:100%;box-shadow:var(--sombra-lg);position:relative">
+        <button onclick="closePinModal()" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--txt2)">✕</button>
+        <div style="font-size:2.4rem;text-align:center;margin-bottom:10px" id="pin-modal-icon">🔐</div>
+        <h3 style="font-family:'Lora',serif;color:var(--azul);text-align:center;margin-bottom:4px" id="pin-modal-title">Acceso Docente</h3>
+        <p style="font-size:13px;color:var(--txt2);text-align:center;margin-bottom:18px" id="pin-modal-desc">Ingresa tu PIN para continuar</p>
+        <input type="password" id="pin-modal-input" class="form-input" placeholder="PIN" maxlength="20"
+          style="text-align:center;font-size:18px;letter-spacing:4px;margin-bottom:8px">
+        <div id="pin-modal-error" style="color:#E53E3E;font-size:13px;text-align:center;margin-bottom:10px;display:none">⚠️ PIN incorrecto</div>
+        <button class="btn btn-primary" onclick="submitPinModal()" id="pin-modal-btn">Acceder →</button>
+      </div>
+    </div>
+
   </div><!-- /student-mode -->
 
   <script>
@@ -3974,7 +3998,6 @@
   state.user = user;
   saveState();
 }
-``
    function getOrCreateSession(metricsPre = null) {
   const user = getUserById(state.user.id);
   const today = new Date().toISOString().split('T')[0];
@@ -4027,7 +4050,6 @@
 
   return session;
 }
-``
     /* ============================================================
        RACHA Y ESTADÍSTICAS
     ============================================================ */
@@ -4151,29 +4173,56 @@
 
     // Utilizada en btn-continue-role y btn-accept-consent
     function handleRoleSelection() {
-      if (!selectedRole) { alert('Selecciona un rol primero'); return; }
+      if (!selectedRole) { toast('⚠️ Selecciona un rol primero'); return; }
       if (selectedRole === 'profesor' || selectedRole === 'administrador') {
         const cfg = getConfig();
         let targetPin = selectedRole === 'profesor' ? cfg.pinDocente : cfg.pinAdministrador;
+        const rolLabel = selectedRole === 'profesor' ? 'Docente' : 'Administrador';
+        const rolIcon = selectedRole === 'profesor' ? '👩‍🏫' : '🛠️';
 
-        if (targetPin === '' || targetPin === undefined || targetPin === null) {
-          const newPin = prompt(`No hay PIN configurado para ${selectedRole}.\nPor favor, crea un nuevo PIN para asegurar el panel (mín. 4 caracteres):`);
-          if (!newPin || newPin.trim().length < 4) { openModal('Cancelado', 'Se requiere PIN válido para proteger los datos.'); return; }
-          if (selectedRole === 'profesor') cfg.pinDocente = newPin.trim();
-          else cfg.pinAdministrador = newPin.trim();
-          setConfig(cfg);
-          targetPin = newPin.trim();
-          toast('🔑 PIN ' + selectedRole + ' configurado exitosamente.');
+        if (!targetPin) {
+          // Sin PIN configurado — pedir crear uno
+          openPinModal(
+            'Crear PIN de ' + rolLabel,
+            'No hay PIN configurado. Crea uno nuevo (mín. 4 caracteres).',
+            rolIcon,
+            function(newPin) {
+              if (newPin.length < 4) {
+                document.getElementById('pin-modal-error').style.display = 'block';
+                document.getElementById('pin-modal-error').textContent = '⚠️ Mínimo 4 caracteres';
+                return;
+              }
+              if (selectedRole === 'profesor') cfg.pinDocente = newPin;
+              else cfg.pinAdministrador = newPin;
+              setConfig(cfg);
+              toast('🔑 PIN ' + rolLabel + ' configurado');
+              closePinModal();
+              // Pedir confirmar acceso inmediatamente
+              openPinModal('Acceso ' + rolLabel, 'Ingresa el PIN recién creado para confirmar.', rolIcon, function(pin) {
+                if (pin === newPin) {
+                  closePinModal();
+                  state.mode = selectedRole; saveState();
+                  buildTeacher(); showScreen('screen-teacher');
+                } else {
+                  document.getElementById('pin-modal-error').style.display = 'block';
+                  document.getElementById('pin-modal-error').textContent = '⚠️ PIN incorrecto';
+                }
+              });
+            }
+          );
+          return;
         }
 
-        const pin = prompt('PIN de acceso:');
-        if (!pin) return;
-        if (pin.trim() === targetPin) {
-          state.mode = selectedRole; saveState();
-          buildTeacher(); showScreen('screen-teacher');
-        } else {
-          openModal('PIN incorrecto', 'Verifica el código (o contacta al administrador si lo olvidaste).');
-        }
+        openPinModal('Acceso ' + rolLabel, 'Ingresa tu PIN para continuar.', rolIcon, function(pin) {
+          if (pin === targetPin) {
+            closePinModal();
+            state.mode = selectedRole; saveState();
+            buildTeacher(); showScreen('screen-teacher');
+          } else {
+            document.getElementById('pin-modal-error').style.display = 'block';
+            document.getElementById('pin-modal-error').textContent = '⚠️ PIN incorrecto';
+          }
+        });
         return;
       }
       showScreen('screen-consent');
@@ -4250,7 +4299,6 @@ if (bindLabel && state.user) {
     ? `📌 Progreso vinculado a: ${u.nombre}${u.cedula ? ' · CC ' + u.cedula : ''}`
     : '';
 }
-``
       }
 
       // Reset selección
@@ -5868,6 +5916,10 @@ EMOCIONES REGISTRADAS:
           }
         }, true);
 
+        // Botón Continuar → en pantalla de rol
+        const btnContinue = document.getElementById('btn-continue-role');
+        if (btnContinue) btnContinue.addEventListener('click', handleRoleSelection);
+
         registerSW();
 
       } catch (e) {
@@ -5890,7 +5942,19 @@ EMOCIONES REGISTRADAS:
     window.addEventListener('online', () => { _online = true; connBar('online', '🌐 Conexión restaurada'); updSync(); setTimeout(hideBar, 4000); if (gQ().length && gURL()) setTimeout(autoSync, 1500) });
     window.addEventListener('offline', () => { _online = false; connBar('offline', '📴 Sin conexión — modo offline'); updSync() });
 
-    function connBar(t, m) { const b = document.getElementById('conn-bar'); if (!b) return; b.className = 'show ' + t; document.getElementById('conn-msg').textContent = m }
+    function connBar(t, m) {
+      const b = document.getElementById('conn-bar');
+      if (!b) return;
+      b.className = 'show ' + t;
+      document.getElementById('conn-msg').textContent = m;
+      // Update header dot
+      const dot = document.getElementById('header-conn-dot');
+      if (dot) {
+        if (t === 'online') { dot.style.background = '#6ee7b7'; dot.style.boxShadow = '0 0 0 2px rgba(110,231,183,.35)'; dot.title = 'Conectado'; }
+        else if (t === 'offline') { dot.style.background = '#fc8181'; dot.style.boxShadow = '0 0 0 2px rgba(252,129,129,.35)'; dot.title = 'Sin conexión'; }
+        else { dot.style.background = '#F2A900'; dot.style.boxShadow = '0 0 0 2px rgba(242,169,0,.35)'; dot.title = 'Sincronizando…'; }
+      }
+    }
     function hideBar() { const b = document.getElementById('conn-bar'); if (b) b.classList.remove('show') }
 
     function updSync() {
@@ -6129,7 +6193,16 @@ EMOCIONES REGISTRADAS:
       else {
         srv.style.display = 'none'; stu.style.display = 'block';
         init();
+        initOfflineMode();
         setTimeout(updSync, 300);
+        // Set initial dot state
+        (function() {
+          const dot = document.getElementById('header-conn-dot');
+          if (dot) {
+            if (_online) { dot.style.background = '#6ee7b7'; dot.style.boxShadow = '0 0 0 2px rgba(110,231,183,.35)'; dot.title = 'Conectado'; }
+            else { dot.style.background = '#fc8181'; dot.style.boxShadow = '0 0 0 2px rgba(252,129,129,.35)'; dot.title = 'Sin conexión'; }
+          }
+        })();
         if (!_online) setTimeout(() => connBar('offline', '📴 Sin conexión — modo offline'), 900);
         if (_online && gQ().length && gURL()) setTimeout(autoSync, 5000)
       }
@@ -6180,8 +6253,38 @@ function initOfflineMode() {
     }
   }
 }
-    initOfflineMode();
-``
+
+    /* ============================================================
+       PIN MODAL (reemplaza prompt() nativo)
+    ============================================================ */
+    let _pinModalCallback = null;
+
+    function openPinModal(title, desc, icon, callback) {
+      document.getElementById('pin-modal-title').textContent = title;
+      document.getElementById('pin-modal-desc').textContent = desc;
+      document.getElementById('pin-modal-icon').textContent = icon || '🔐';
+      document.getElementById('pin-modal-input').value = '';
+      document.getElementById('pin-modal-error').style.display = 'none';
+      _pinModalCallback = callback;
+      const ov = document.getElementById('pin-modal-overlay');
+      ov.style.display = 'flex';
+      setTimeout(() => document.getElementById('pin-modal-input').focus(), 80);
+    }
+
+    function closePinModal() {
+      document.getElementById('pin-modal-overlay').style.display = 'none';
+      _pinModalCallback = null;
+    }
+
+    function submitPinModal() {
+      const val = document.getElementById('pin-modal-input').value.trim();
+      if (!val) { document.getElementById('pin-modal-error').style.display = 'block'; document.getElementById('pin-modal-error').textContent = '⚠️ Escribe el PIN'; return; }
+      if (_pinModalCallback) _pinModalCallback(val);
+    }
+
+    document.getElementById('pin-modal-input')?.addEventListener('keydown', e => { if (e.key === 'Enter') submitPinModal(); });
+    document.getElementById('pin-modal-overlay')?.addEventListener('click', e => { if (e.target === document.getElementById('pin-modal-overlay')) closePinModal(); });
+
   </script>
 </body>
 
