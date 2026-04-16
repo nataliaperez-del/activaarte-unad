@@ -634,7 +634,127 @@
       font-size: 12px;
       opacity: .7
     }
+/* ═══════════════════════════════════════════
+   OFFLINE / DESCARGA — ACTiva Arte
+═══════════════════════════════════════════ */
 
+/* Botón de descarga en pantalla de rol */
+.btn-offline-download {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px 16px;
+  background: var(--crema);
+  color: var(--azul);
+  border: 2px dashed var(--azul-m);
+  border-radius: var(--r);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .2s, border-color .2s;
+  font-family: inherit;
+}
+.btn-offline-download:hover {
+  background: #e8e0d0;
+  border-color: var(--azul);
+}
+
+/* Bloque informativo offline en check-in */
+.offline-hint-block {
+  background: var(--crema);
+  border: 1px solid #ddd3bb;
+  border-radius: var(--rs);
+  padding: 14px 16px;
+  margin-top: 12px;
+  margin-bottom: 4px;
+}
+.offline-hint-block p {
+  font-size: 13px;
+  color: var(--txt2);
+  margin: 0 0 10px 0;
+  line-height: 1.5;
+}
+.offline-hint-block .user-binding {
+  font-size: 11px;
+  color: var(--azul-m);
+  font-weight: 700;
+  margin-top: 6px;
+  display: block;
+}
+.btn-offline-mini {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: var(--azul);
+  color: #fff;
+  border: none;
+  border-radius: var(--rs);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background .2s;
+}
+.btn-offline-mini:hover { background: var(--azul-m); }
+
+/* Campo de cédula en formulario de registro */
+.cedula-field {
+  margin-top: 14px;
+}
+.cedula-field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--azul);
+  margin-bottom: 4px;
+}
+.cedula-field input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid var(--borde);
+  border-radius: var(--rs);
+  font-size: 14px;
+  color: var(--txt);
+  background: var(--blanco);
+  box-sizing: border-box;
+  font-family: inherit;
+  transition: border-color .2s;
+}
+.cedula-field input:focus {
+  outline: none;
+  border-color: var(--azul-c);
+}
+.cedula-field input:disabled {
+  background: var(--fondo);
+  color: var(--txt2);
+  cursor: not-allowed;
+  border-color: var(--borde);
+}
+.cedula-field .field-hint {
+  font-size: 11px;
+  color: var(--txt2);
+  margin-top: 4px;
+}
+
+/* Badge "sesión activa" en pantalla de rol */
+.active-session-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #e8f4e8;
+  border: 1.5px solid var(--verde);
+  border-radius: var(--rs);
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: var(--verde);
+  font-weight: 700;
+}
+.active-session-badge span { flex: 1; font-size: 12px; font-weight: 400; color: var(--txt2); }
     /* ═══════════════════════════════════════════
    EMOTIONS — CHECK-IN INMERSIVO
 ═══════════════════════════════════════════ */
@@ -3053,72 +3173,117 @@
     </header>
 
     <main class="stu-app" role="main">
-
       <!-- PANTALLA 0: ROL -->
-      <div class="screen active" id="screen-mode">
-        <div class="banner banner-home" style="border-radius:var(--r) var(--r) 0 0;height:200px">
-          <div class="banner-content">
-            <span class="banner-emoji">🎨</span>
-            <div class="banner-title">ACTiva Arte</div>
-            <div class="banner-sub">Terapia ACT · Arte · Tecnología · UNAD</div>
-          </div>
-        </div>
-        <div class="form-card" style="border-radius:0 0 var(--r) var(--r)">
-          <h2 style="font-size:1.3rem;color:var(--azul);margin-bottom:6px;text-align:center">¿Quién eres hoy?</h2>
-          <p style="font-size:13px;color:var(--txt2);margin-bottom:4px;text-align:center">Selecciona tu rol para
-            continuar.</p>
-          <div class="role-grid" id="role-grid">
-            <div class="role-card" data-role="estudiante">
-              <span class="r-icon">👤</span>
-              <span class="r-name">Estudiante</span>
-              <span class="r-desc">Espacio de bienestar</span>
-            </div>
-            <div class="role-card" data-role="profesor">
-              <span class="r-icon">👩‍🏫</span>
-              <span class="r-name">Docente</span>
-              <span class="r-desc">Panel de seguimiento</span>
-            </div>
-            <div class="role-card" data-role="administrador">
-              <span class="r-icon">🛠️</span>
-              <span class="r-name">Admin</span>
-              <span class="r-desc">Gestión del sistema</span>
-            </div>
-          </div>
-          <button class="btn btn-primary" id="btn-continue-role" disabled style="margin-top:8px">
-            Continuar →
-          </button>
-          <p style="text-align:center;font-size:12px;color:var(--txt2);margin-top:14px">
-            🔒 Tus datos se guardan solo en este dispositivo
-          </p>
-        </div>
+<div class="screen active" id="screen-mode">
+  <div class="banner banner-home" style="border-radius:var(--r) var(--r) 0 0;height:200px">
+    <div class="banner-content">
+      <span class="banner-emoji">🎨</span>
+      <div class="banner-title">ACTiva Arte</div>
+      <div class="banner-sub">Terapia ACT · Arte · Tecnología · UNAD</div>
+    </div>
+  </div>
+
+  <div class="form-card" style="border-radius:0 0 var(--r) var(--r)">
+    
+    <!-- Badge dinámico: se muestra si ya hay sesión activa -->
+    <div class="active-session-badge" id="active-session-badge" style="display:none">
+      ✅ <span id="active-session-name"></span>
+    </div>
+
+    <h2 style="font-size:1.3rem;color:var(--azul);margin-bottom:6px;text-align:center">
+      ¿Quién eres hoy?
+    </h2>
+
+    <p style="font-size:13px;color:var(--txt2);margin-bottom:4px;text-align:center">
+      Selecciona tu rol para continuar.
+    </p>
+
+    <div class="role-grid" id="role-grid">
+      <div class="role-card" data-role="estudiante">
+        <span class="r-icon">👤</span>
+        <span class="r-name">Estudiante</span>
+        <span class="r-desc">Espacio de bienestar</span>
       </div>
 
-      <!-- PANTALLA CONSENTIMIENTO -->
-      <div class="screen" id="screen-consent">
-        <div class="banner banner-home" style="border-radius:var(--r) var(--r) 0 0;height:200px">
-          <div class="banner-content">
-            <span class="banner-emoji">⚖️</span>
-            <div class="banner-title">Consentimiento Informado</div>
-            <div class="banner-sub">Importante antes de empezar</div>
-          </div>
-        </div>
-        <div class="form-card" style="border-radius:0 0 var(--r) var(--r)">
-          <h2 style="font-size:1.3rem;color:var(--azul);margin-bottom:12px;text-align:center">Uso y Privacidad</h2>
-          <div
-            style="font-size:13px;color:var(--txt2);line-height:1.6;background:var(--fondo);padding:16px;border-radius:var(--rs);margin-bottom:16px;">
-            <p><strong>1. Propósito:</strong> ACTiva Arte es una herramienta psicoeducativa de bienestar basada en
-              Terapia de Aceptación y Compromiso (ACT). No reemplaza la terapia psicológica ni el tratamiento médico.
-            </p>
-            <p style="margin-top:8px"><strong>2. Privacidad:</strong> Tus datos se almacenan localmente en tu
-              dispositivo. Tu docente podrá ver tus estadísticas pseudonimizadas.</p>
-            <p style="margin-top:8px"><strong>3. Alertas:</strong> Informaremos a tu institución si detectamos alertas
-              de riesgo graves para tu acompañamiento preventivo.</p>
-          </div>
-          <button class="btn btn-primary" id="btn-accept-consent" style="margin-top:8px;font-weight:700">
-            He leído y acepto →
-          </button>
-        </div>
+      <div class="role-card" data-role="profesor">
+        <span class="r-icon">👩‍🏫</span>
+        <span class="r-name">Docente</span>
+        <span class="r-desc">Panel de seguimiento</span>
       </div>
+
+      <div class="role-card" data-role="administrador">
+        <span class="r-icon">🛠️</span>
+        <span class="r-name">Admin</span>
+        <span class="r-desc">Gestión del sistema</span>
+      </div>
+    </div>
+
+    <!-- Botón descarga offline -->
+    <button
+      class="btn-offline-download"
+      type="button"
+      onclick="downloadApp()">
+      💾 Descargar Entorno Offline
+    </button>
+
+    <button
+      class="btn btn-primary"
+      id="btn-continue-role"
+      disabled
+      style="margin-top:8px">
+      Continuar →
+    </button>
+
+    <p style="text-align:center;font-size:12px;color:var(--txt2);margin-top:14px">
+      🔒 Tus datos se guardan solo en este dispositivo
+    </p>
+  </div>
+</div>
+     <!-- PANTALLA CONSENTIMIENTO -->
+<div class="screen" id="screen-consent">
+  <div class="banner banner-home" style="border-radius:var(--r) var(--r) 0 0;height:200px">
+    <div class="banner-content">
+      <span class="banner-emoji">⚖️</span>
+      <div class="banner-title">Consentimiento Informado</div>
+      <div class="banner-sub">Importante antes de empezar</div>
+    </div>
+  </div>
+  <div class="form-card" style="border-radius:0 0 var(--r) var(--r)">
+    <h2 style="font-size:1.3rem;color:var(--azul);margin-bottom:12px;text-align:center">Uso y Privacidad</h2>
+    <div style="font-size:13px;color:var(--txt2);line-height:1.6;background:var(--fondo);padding:16px;border-radius:var(--rs);margin-bottom:16px;">
+      <p><strong>1. Propósito:</strong> ACTiva Arte es una herramienta psicoeducativa de bienestar basada en
+        Terapia de Aceptación y Compromiso (ACT). No reemplaza la terapia psicológica ni el tratamiento médico.</p>
+      <p style="margin-top:8px"><strong>2. Privacidad:</strong> Tus datos se almacenan localmente en tu
+        dispositivo. Tu docente podrá ver tus estadísticas pseudonimizadas.</p>
+      <p style="margin-top:8px"><strong>3. Alertas:</strong> Informaremos a tu institución si detectamos alertas
+        de riesgo graves para tu acompañamiento preventivo.</p>
+    </div>
+
+    <!-- NUEVO: Campos de nombre y cédula -->
+    <div class="cedula-field">
+      <label for="input-nombre">Nombre completo</label>
+      <input type="text" id="input-nombre"
+             placeholder="Ej: María Pérez"
+             autocomplete="name"
+             maxlength="60">
+      <span class="field-hint">Escribe el nombre que usarás siempre en la app.</span>
+    </div>
+
+    <div class="cedula-field" style="margin-top:12px">
+      <label for="input-cedula">Cédula / ID de estudiante</label>
+      <input type="text" id="input-cedula"
+             placeholder="Ej: 1032162406"
+             autocomplete="off"
+             inputmode="numeric"
+             maxlength="20">
+      <span class="field-hint">Vincula tus datos de forma única y evita duplicados.</span>
+    </div>
+
+    <button class="btn btn-primary" id="btn-accept-consent" style="margin-top:16px;font-weight:700">
+      He leído y acepto →
+    </button>
+  </div>
+</div>
 
       <!-- PANTALLA 1: CHECKIN -->
       <div class="screen" id="screen-checkin">
@@ -3172,13 +3337,36 @@
 
         </div>
 
-        <button class="btn btn-primary" id="btn-validate" disabled
-          style="margin-top:4px;font-size:16px;min-height:54px">
-          Entrar a mi espacio →
-        </button>
-        <p style="text-align:center;font-size:11px;color:var(--txt2);margin-top:10px;margin-bottom:20px">
-          🔒 Tus datos permanecen en este dispositivo
-        </p>
+       <button
+  class="btn btn-primary"
+  id="btn-validate"
+  disabled
+  style="margin-top:4px;font-size:16px;min-height:54px">
+  Entrar a mi espacio →
+</button>
+
+<!-- NUEVO: Bloque informativo offline -->
+<div class="offline-hint-block" id="offline-hint-block">
+  <p>
+    📴 <strong>¿Sin conexión?</strong>
+    Usa la versión descargable para no perder tu progreso.
+  </p>
+
+  <button
+    class="btn-offline-mini"
+    type="button"
+    onclick="downloadApp()">
+    💾 Descargar app offline
+  </button>
+
+  <span
+    class="user-binding"
+    id="offline-binding-label"></span>
+</div>
+
+<p style="text-align:center;font-size:11px;color:var(--txt2);margin-top:10px;margin-bottom:20px">
+  🔒 Tus datos permanecen en este dispositivo
+</p>
       </div>
 
       <!-- PANTALLA 2: DASHBOARD -->
@@ -3725,37 +3913,121 @@
       setUsers(data);
     }
 
-    function createOrGetUser(name, rol = 'estudiante') {
-      const data = getUsers();
-      let user = data.usuarios.find(u => u.nombre.toLowerCase() === name.toLowerCase().trim());
-      if (!user) {
-        user = { id: 'u-' + Date.now(), nombre: name.trim(), rol: rol, fechaRegistro: new Date().toISOString(), sesiones: [], puntos: 0, logros: [], consent: false };
-        data.usuarios.push(user); setUsers(data);
-      } else {
-        // Actualizar rol si cambió
-        if (user.rol !== rol) { user.rol = rol; saveUser(user); }
-      }
-      state.user = user; saveState();
+   function createOrGetUser(name, rol = 'estudiante', cedula = '') {
+  const data = getUsers();
+
+  const cleanName = name.trim();
+  const cleanCedula = cedula.trim().replace(/\D/g, '');
+
+  // 1. Buscar primero por cédula (identificador único)
+  let user = cleanCedula
+    ? data.usuarios.find(u => u.cedula === cleanCedula)
+    : null;
+
+  // 2. Fallback: buscar por nombre (usuarios antiguos)
+  if (!user) {
+    user = data.usuarios.find(
+      u => u.nombre.toLowerCase() === cleanName.toLowerCase()
+    );
+  }
+
+  // 3. Crear usuario nuevo si no existe
+  if (!user) {
+    const uid = cleanCedula
+      ? 'u-' + cleanCedula
+      : 'u-' + Date.now();
+
+    user = {
+      id: uid,
+      nombre: cleanName,
+      cedula: cleanCedula || '',
+      rol: rol,
+      fechaRegistro: new Date().toISOString(),
+      sesiones: [],
+      puntos: 0,
+      logros: [],
+      consent: false
+    };
+
+    data.usuarios.push(user);
+    setUsers(data);
+
+  } else {
+    // 4. Actualizar datos si es retorno
+    let changed = false;
+
+    if (user.rol !== rol) {
+      user.rol = rol;
+      changed = true;
     }
 
-    function getOrCreateSession(metricsPre = null) {
-      const user = getUserById(state.user.id);
-      const today = new Date().toISOString().split('T')[0];
-      let session = user.sesiones?.find(s => s.fecha.startsWith(today));
-      if (!session) {
-        session = { id: 's-' + Date.now(), fecha: new Date().toISOString(), emocionInicio: state.emotion, emocionesInicio: state.emotions || [], emocionFin: '', ejerciciosCompletados: [], modulo: null, metricsPre: metricsPre };
-        user.sesiones = user.sesiones || [];
-        user.sesiones.push(session);
-        saveUser(user);
-      } else if (metricsPre && !session.metricsPre) {
-        session.metricsPre = metricsPre;
-        saveUser(user);
-      }
-      state.sessionId = session.id;
-      saveState();
-      return session;
+    if (cleanCedula && !user.cedula) {
+      user.cedula = cleanCedula;
+      changed = true;
     }
 
+    if (changed) {
+      saveUser(user);
+    }
+  }
+
+  state.user = user;
+  saveState();
+}
+``
+   function getOrCreateSession(metricsPre = null) {
+  const user = getUserById(state.user.id);
+  const today = new Date().toISOString().split('T')[0];
+
+  // Buscar sesión existente del mismo día
+  let session = user.sesiones?.find(s => s.fecha.startsWith(today));
+
+  if (!session) {
+    // No existe sesión hoy → crear nueva
+    session = {
+      id: 's-' + Date.now(),
+      fecha: new Date().toISOString(),
+      emocionInicio: state.emotion,
+      emocionesInicio: state.emotions || [],
+      emocionFin: '',
+      ejerciciosCompletados: [],
+      modulo: null,
+      metricsPre: metricsPre
+    };
+
+    user.sesiones = user.sesiones || [];
+    user.sesiones.push(session);
+    saveUser(user);
+
+  } else {
+    // Ya existe sesión hoy → actualizar solo campos vacíos
+    let changed = false;
+
+    if (metricsPre && !session.metricsPre) {
+      session.metricsPre = metricsPre;
+      changed = true;
+    }
+
+    if (
+      (!session.emocionesInicio || !session.emocionesInicio.length) &&
+      state.emotions && state.emotions.length
+    ) {
+      session.emocionesInicio = state.emotions;
+      session.emocionInicio = state.emotion;
+      changed = true;
+    }
+
+    if (changed) {
+      saveUser(user);
+    }
+  }
+
+  state.sessionId = session.id;
+  saveState();
+
+  return session;
+}
+``
     /* ============================================================
        RACHA Y ESTADÍSTICAS
     ============================================================ */
@@ -3907,12 +4179,43 @@
       showScreen('screen-consent');
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('btn-continue-role')?.addEventListener('click', (e) => {
-        e.stopPropagation(); e.preventDefault();
-        handleRoleSelection();
-      });
+   document.getElementById('btn-accept-consent')?.addEventListener('click', () => {
+  const nameInput = document.getElementById('input-nombre');
+  const cedulaInput = document.getElementById('input-cedula');
 
+  const name = (nameInput?.value || '').trim();
+  const cedula = (cedulaInput?.value || '').trim().replace(/\D/g, '');
+
+  if (!name) {
+    nameInput?.focus();
+    toast('⚠️ Escribe tu nombre para continuar');
+    return;
+  }
+
+  if (!cedula) {
+    cedulaInput?.focus();
+    toast('⚠️ Escribe tu Cédula/ID para continuar');
+    return;
+  }
+
+  createOrGetUser(name, selectedRole, cedula);
+  const user = getUserById(state.user.id);
+
+  // Si el usuario ya tenía consentimiento, bloquear campos
+  if (user.consent) {
+    if (nameInput) nameInput.disabled = true;
+    if (cedulaInput) cedulaInput.disabled = true;
+  } else {
+    user.consent = true;
+    saveUser(user);
+  }
+
+  state.mode = selectedRole;
+  saveState();
+
+  buildCheckin();
+  showScreen('screen-checkin');
+});
       document.getElementById('btn-accept-consent')?.addEventListener('click', (e) => {
         const name = prompt('¿Cuál es tu nombre? (o un alias si lo prefieres)');
         if (!name || !name.trim()) return;
@@ -3951,6 +4254,15 @@
         });
         const avg = last3.reduce((a, b) => a + b, 0) / (last3.length || 1);
         if (last3.length >= 3 && avg <= 3) document.getElementById('alert-support').classList.add('show');
+        // Label de vinculación offline
+const bindLabel = document.getElementById('offline-binding-label');
+if (bindLabel && state.user) {
+  const u = getUserById(state.user.id);
+  bindLabel.textContent = u
+    ? `📌 Progreso vinculado a: ${u.nombre}${u.cedula ? ' · CC ' + u.cedula : ''}`
+    : '';
+}
+``
       }
 
       // Reset selección
@@ -5834,8 +6146,54 @@ EMOCIONES REGISTRADAS:
         if (_online && gQ().length && gURL()) setTimeout(autoSync, 5000)
       }
     })();
+/**
+ * initOfflineMode()
+ * Detecta si la app corre en file:// (modo offline)
+ * Oculta cambio de usuario y muestra sesión activa
+ */
+function initOfflineMode() {
+  const isOffline = window.location.protocol === 'file:';
 
+  // 1. Ocultar "Cambiar usuario" en modo offline
+  if (isOffline) {
+    const btnLogout = document.getElementById('btn-logout');
+    if (btnLogout) btnLogout.style.display = 'none';
+  }
 
+  // 2. Mostrar badge de sesión activa si existe usuario
+  const data = getUsers();
+  const estudiantes = data.usuarios.filter(u => u.rol === 'estudiante');
+
+  if (estudiantes.length > 0) {
+    const last = estudiantes
+      .sort((a, b) => new Date(b.fechaRegistro) - new Date(a.fechaRegistro))[0];
+
+    const badge = document.getElementById('active-session-badge');
+    const nameEl = document.getElementById('active-session-name');
+
+    if (badge && nameEl) {
+      nameEl.textContent =
+        `Sesión activa: ${last.nombre}` +
+        (last.cedula ? ' · CC ' + last.cedula : '');
+      badge.style.display = 'flex';
+    }
+
+    // 3. Prellenar y bloquear campos de consentimiento
+    const nameInput = document.getElementById('input-nombre');
+    const cedulaInput = document.getElementById('input-cedula');
+
+    if (nameInput && last.nombre) {
+      nameInput.value = last.nombre;
+      nameInput.disabled = true;
+    }
+    if (cedulaInput && last.cedula) {
+      cedulaInput.value = last.cedula;
+      cedulaInput.disabled = true;
+    }
+  }
+}
+    initOfflineMode();
+``
   </script>
 </body>
 
