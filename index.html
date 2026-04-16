@@ -4216,18 +4216,6 @@
   buildCheckin();
   showScreen('screen-checkin');
 });
-      document.getElementById('btn-accept-consent')?.addEventListener('click', (e) => {
-        const name = prompt('¿Cuál es tu nombre? (o un alias si lo prefieres)');
-        if (!name || !name.trim()) return;
-        createOrGetUser(name, selectedRole);
-        const user = getUserById(state.user.id);
-        user.consent = true;
-        saveUser(user);
-        state.mode = selectedRole; saveState();
-        buildCheckin(); showScreen('screen-checkin');
-      });
-    });
-
     /* ============================================================
        PANTALLA 1: CHECK-IN EMOCIONAL
     ============================================================ */
